@@ -1,0 +1,25 @@
+﻿# Nokia Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-10-21
+
+## Active Technologies
+- JavaScript ES6+ (ECMAScript 2015+) + None (vanilla JavaScript), Web Audio API (built-in), Canvas API (built-in) (001-nokia-boot-system)
+
+## Project Structure
+```
+backend/
+frontend/
+tests/
+```
+
+## Commands
+npm test; npm run lint
+
+## Code Style
+JavaScript ES6+ (ECMAScript 2015+): Follow standard conventions
+
+## Recent Changes
+- 001-nokia-boot-system: Added JavaScript ES6+ (ECMAScript 2015+) + None (vanilla JavaScript), Web Audio API (built-in), Canvas API (built-in)
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->
