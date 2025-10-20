@@ -32,7 +32,7 @@ class HomeScreen {
     
     // 3. Draw time (center-top)
     this.ctx.fillStyle = '#fff';
-    this.ctx.font = 'bold 18px "Nokia Sans", Arial, sans-serif';
+    this.ctx.font = 'normal 18px "Nokia Sans", Arial, sans-serif';
     this.ctx.textAlign = 'center';
     this.ctx.fillText(data.time, 120, 16);
     
@@ -59,12 +59,12 @@ class HomeScreen {
     }
     
     // 6. Draw date (below time)
-    this.ctx.font = 'bold 22px "Nokia Sans", Arial, sans-serif';
+    this.ctx.font = 'normal 22px "Nokia Sans", Arial, sans-serif';
     this.ctx.fillText(data.date, 120, 55);
     
     // 7. Draw soft key labels (bottom)
     this.ctx.fillStyle = '#fff';
-    this.ctx.font = 'bold 20px "Nokia Sans", Arial, sans-serif';
+    this.ctx.font = 'normal 20px "Nokia Sans", Arial, sans-serif';
     this.ctx.textAlign = 'left';
     this.ctx.fillText('Go to', 10, 310);
     this.ctx.textAlign = 'center';

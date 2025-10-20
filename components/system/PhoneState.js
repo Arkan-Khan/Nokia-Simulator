@@ -8,7 +8,10 @@
 const PhoneStates = Object.freeze({
   POWERED_OFF: 'POWERED_OFF',
   BOOTING: 'BOOTING', 
+  LOCKED: 'LOCKED',
+  UNLOCKING: 'UNLOCKING',
   HOME_SCREEN: 'HOME_SCREEN',
+  DIALER: 'DIALER',
   POWERING_OFF: 'POWERING_OFF'
 });
 
@@ -20,8 +23,11 @@ class PhoneState {
     // Valid state transitions
     this.transitions = {
       [PhoneStates.POWERED_OFF]: [PhoneStates.BOOTING],
-      [PhoneStates.BOOTING]: [PhoneStates.HOME_SCREEN],
-      [PhoneStates.HOME_SCREEN]: [PhoneStates.POWERING_OFF],
+      [PhoneStates.BOOTING]: [PhoneStates.LOCKED],
+      [PhoneStates.LOCKED]: [PhoneStates.UNLOCKING, PhoneStates.POWERING_OFF],
+      [PhoneStates.UNLOCKING]: [PhoneStates.HOME_SCREEN, PhoneStates.DIALER],
+      [PhoneStates.HOME_SCREEN]: [PhoneStates.DIALER, PhoneStates.LOCKED, PhoneStates.POWERING_OFF],
+      [PhoneStates.DIALER]: [PhoneStates.HOME_SCREEN, PhoneStates.LOCKED],
       [PhoneStates.POWERING_OFF]: [PhoneStates.POWERED_OFF]
     };
   }

@@ -12,6 +12,8 @@ class ScreenManager {
     this.bootScreen = new BootScreen(this.ctx);
     this.homeScreen = new HomeScreen(this.ctx);
     this.powerOffScreen = new PowerOffScreen(this.ctx);
+    this.lockScreen = new LockScreen(this.ctx);
+    this.dialerScreen = new DialerScreen(this.ctx);
   }
 
   /**
@@ -56,6 +58,39 @@ class ScreenManager {
   async renderPowerOffAnimation() {
     this.currentScreen = 'poweroff';
     return await this.powerOffScreen.playFadeOut();
+  }
+
+  /**
+   * Render lock screen
+   */
+  renderLockScreen() {
+    this.currentScreen = 'locked';
+    this.lockScreen.render();
+  }
+
+  /**
+   * Render dialer screen
+   * @param {HTMLImageElement|null} wallpaper - Wallpaper image
+   */
+  renderDialerScreen(wallpaper) {
+    this.currentScreen = 'dialer';
+    this.dialerScreen.render(wallpaper);
+  }
+
+  /**
+   * Get lock screen instance
+   * @returns {LockScreen}
+   */
+  getLockScreen() {
+    return this.lockScreen;
+  }
+
+  /**
+   * Get dialer screen instance
+   * @returns {DialerScreen}
+   */
+  getDialerScreen() {
+    return this.dialerScreen;
   }
 }
 

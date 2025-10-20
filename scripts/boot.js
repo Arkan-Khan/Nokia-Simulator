@@ -11,6 +11,8 @@ class BootController {
     this.screenManager = null;
     this.timeFormatter = TimeFormatter;
     this.timeUpdateInterval = null;
+    this.buttonHandler = null;
+    this.screenTimeout = null;
     
     // Asset paths
     this.assets = {
@@ -41,6 +43,9 @@ class BootController {
     
     // Setup power button
     this.setupPowerButton();
+    
+    // Setup button handler
+    this.setupButtonHandler();
     
     this.isInitialized = true;
   }
@@ -76,7 +81,18 @@ class BootController {
     const longPress = new LongPressDetector(powerButton, () => {
       this.togglePower();
     }, 3000);
+  }
 
+  /**
+   * Setup button handler for keypad interaction
+   */
+  setupButtonHandler() {
+    this.buttonHandler = new ButtonHandler(this.audioManager);
+    
+    // Listen for button press events
+    document.addEventListener('buttonPress', (e) => {
+      this.handleButtonPress(e.detail.key);
+    });
   }
 
   /**
@@ -87,10 +103,155 @@ class BootController {
     
     if (currentState === PhoneStates.POWERED_OFF) {
       await this.initiateBoot();
-    } else if (currentState === PhoneStates.HOME_SCREEN) {
+    } else if (currentState === PhoneStates.HOME_SCREEN || currentState === PhoneStates.DIALER) {
       await this.initiateShutdown();
     }
-    // Ignore if in BOOTING or POWERING_OFF states
+    // Ignore if in BOOTING, LOCKED, UNLOCKING, or POWERING_OFF states
+  }
+
+  /**
+   * Handle button press based on current state
+   * @param {string} key - Button key pressed
+   */
+  async handleButtonPress(key) {
+    const currentState = this.phoneState.getCurrentState();
+    
+    // Clear screen timeout on any button press
+    this.clearScreenTimeout();
+    
+    switch (currentState) {
+      case PhoneStates.LOCKED:
+        await this.handleLockedState(key);
+        break;
+      case PhoneStates.HOME_SCREEN:
+        await this.handleHomeState(key);
+        break;
+      case PhoneStates.DIALER:
+        await this.handleDialerState(key);
+        break;
+      default:
+        // Ignore button presses in other states
+        break;
+    }
+  }
+
+  /**
+   * Handle button press when locked
+   * @param {string} key - Button key pressed
+   */
+  async handleLockedState(key) {
+    const lockScreen = this.screenManager.getLockScreen();
+    const unlocked = lockScreen.handleButtonPress(key);
+    
+    if (unlocked) {
+      // Play unlock animation
+      if (this.phoneState.transitionTo(PhoneStates.UNLOCKING)) {
+        await this.screenManager.getLockScreen().playUnlockAnimation();
+        
+        // Transition to home screen
+        if (this.phoneState.transitionTo(PhoneStates.HOME_SCREEN)) {
+          await this.renderHomeScreen();
+          this.startTimeUpdates();
+        }
+      }
+    } else {
+      // Show lock screen again
+      this.screenManager.renderLockScreen();
+      this.startScreenTimeout();
+    }
+  }
+
+  /**
+   * Handle button press when on home screen
+   * @param {string} key - Button key pressed
+   */
+  async handleHomeState(key) {
+    if (key === 'END') {
+      // Lock the phone
+      await this.lockPhone();
+    } else if (key === 'CALL') {
+      // Go to dialer
+      if (this.phoneState.transitionTo(PhoneStates.DIALER)) {
+        this.screenManager.renderDialerScreen(this.assetLoader.getImage('wallpaper'));
+        this.startScreenTimeout();
+      }
+    }
+  }
+
+  /**
+   * Handle button press when on dialer screen
+   * @param {string} key - Button key pressed
+   */
+  async handleDialerState(key) {
+    const dialerScreen = this.screenManager.getDialerScreen();
+    
+    if (key === 'END') {
+      // Lock the phone
+      await this.lockPhone();
+    } else if (key === 'CALL') {
+      // Go back to home screen
+      if (this.phoneState.transitionTo(PhoneStates.HOME_SCREEN)) {
+        await this.renderHomeScreen();
+        this.startTimeUpdates();
+      }
+    } else if (key === 'OK') {
+      // Clear number
+      dialerScreen.clearNumber();
+      this.screenManager.renderDialerScreen(this.assetLoader.getImage('wallpaper'));
+    } else if (key >= '0' && key <= '9') {
+      // Add digit
+      dialerScreen.addDigit(key);
+      this.screenManager.renderDialerScreen(this.assetLoader.getImage('wallpaper'));
+    } else if (key === '*') {
+      // Add * to number
+      dialerScreen.addDigit('*');
+      this.screenManager.renderDialerScreen(this.assetLoader.getImage('wallpaper'));
+    } else if (key === '#') {
+      // Add # to number
+      dialerScreen.addDigit('#');
+      this.screenManager.renderDialerScreen(this.assetLoader.getImage('wallpaper'));
+    }
+  }
+
+  /**
+   * Lock the phone
+   */
+  async lockPhone() {
+    if (this.phoneState.transitionTo(PhoneStates.UNLOCKING)) {
+      // Play lock animation
+      await this.screenManager.getLockScreen().playLockAnimation();
+      
+      // Transition to locked state
+      if (this.phoneState.transitionTo(PhoneStates.LOCKED)) {
+        this.screenManager.renderLockScreen();
+        this.startScreenTimeout();
+      }
+    }
+  }
+
+  /**
+   * Start screen timeout (auto-lock after 3 seconds)
+   */
+  startScreenTimeout() {
+    this.clearScreenTimeout();
+    this.screenTimeout = setTimeout(() => {
+      const currentState = this.phoneState.getCurrentState();
+      if (currentState === PhoneStates.HOME_SCREEN || currentState === PhoneStates.DIALER) {
+        this.lockPhone();
+      } else if (currentState === PhoneStates.LOCKED) {
+        this.screenManager.renderBlackScreen();
+      }
+    }, 3000);
+  }
+
+  /**
+   * Clear screen timeout
+   */
+  clearScreenTimeout() {
+    if (this.screenTimeout) {
+      clearTimeout(this.screenTimeout);
+      this.screenTimeout = null;
+    }
   }
 
   /**
@@ -126,17 +287,17 @@ class BootController {
       // Add small delay to ensure smooth transition
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Transition to home screen
-      if (this.phoneState.transitionTo(PhoneStates.HOME_SCREEN)) {
-        await this.renderHomeScreen();
-        this.startTimeUpdates();
+      // Transition to lock screen
+      if (this.phoneState.transitionTo(PhoneStates.LOCKED)) {
+        this.screenManager.renderLockScreen();
+        this.startScreenTimeout();
       }
     } catch (error) {
       console.error('[BOOT] Boot sequence failed:', error);
-      // Fallback to home screen even if boot fails
-      if (this.phoneState.transitionTo(PhoneStates.HOME_SCREEN)) {
-        await this.renderHomeScreen();
-        this.startTimeUpdates();
+      // Fallback to lock screen even if boot fails
+      if (this.phoneState.transitionTo(PhoneStates.LOCKED)) {
+        this.screenManager.renderLockScreen();
+        this.startScreenTimeout();
       }
     }
   }
