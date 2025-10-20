@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Nokia 5130 Emulator</title>
+  <style>
+    body {
+      background: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    .phone {
+      position: relative;
+      width: 229px;
+      height: 527px;
+      background: url('Nokia.png') no-repeat center/contain;
+      cursor: default;
+    }
+    .screen {
+      position: absolute;
+      left: 36px;
+      top: 99px;
+      width: 152px;
+      height: 202px;
+      image-rendering: pixelated;
+      border: 1px solid #000;
+    }
+    .button {
+      position: absolute;
+      cursor: pointer;
+      user-select: none;
+      transition: opacity 0.1s;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .button:active {
+      opacity: 0.7;
+    }
+    /* Soft keys */
+    .left-soft { left: 35px; top: 320px; width: 35px; height: 20px; }
+    .right-soft { left: 153px; top: 320px; width: 35px; height: 20px; }
+    
+    /* Call buttons */
+    .call-green { left: 35px; top: 348px; width: 35px; height: 20px; }
+    .call-red { left: 153px; top: 348px; width: 35px; height: 20px; }
+    
+    /* D-pad */
+    .dpad-up { left: 91px; top: 305px; width: 40px; height: 9px; }
+    .dpad-down { left: 91px; top: 360px; width: 40px; height: 9px; }
+    .dpad-left { left: 77px; top: 325px; width: 10px; height: 40px; }
+    .dpad-right { left: 135px; top: 325px; width: 10px; height: 40px; }
+    .dpad-center { left: 94px; top: 326px; width: 33px; height: 25px; }
+    
+    /* Number pad - 3 columns */
+    .key-1 { left: 35px; top: 380px; width: 34px; height: 20px; }
+    .key-2 { left: 95px; top: 380px; width: 34px; height: 20px; }
+    .key-3 { left: 150px; top: 380px; width: 34px; height: 20px; }
+    
+    .key-4 { left: 35px; top: 406px; width: 34px; height: 20px; }
+    .key-5 { left: 95px; top: 406px; width: 34px; height: 20px; }
+    .key-6 { left: 150px; top: 406px; width: 34px; height: 20px; }
+    
+    .key-7 { left: 35px; top: 433px; width: 34px; height: 20px; }
+    .key-8 { left: 95px; top: 433px; width: 34px; height: 20px; }
+    .key-9 { left: 150px; top: 433px; width: 34px; height: 20px; }
+    
+    .key-star { left: 45px; top: 460px; width: 30px; height: 20px; }
+    .key-0 { left: 95px; top: 460px; width: 30px; height: 20px; }
+    .key-hash { left: 145px; top: 460px; width: 30px; height: 20px; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <canvas id="screen" class="screen" width="240" height="320"></canvas>
+    
+    <!-- Soft Keys -->
+    <div class="button left-soft" data-key="LSK"></div>
+    <div class="button right-soft" data-key="RSK"></div>
+    
+    <!-- Call Buttons -->
+    <div class="button call-green" data-key="CALL"></div>
+    <div class="button call-red" data-key="END"></div>
+    
+    <!-- D-Pad -->
+    <div class="button dpad-up" data-key="UP"></div>
+    <div class="button dpad-down" data-key="DOWN"></div>
+    <div class="button dpad-left" data-key="LEFT"></div>
+    <div class="button dpad-right" data-key="RIGHT"></div>
+    <div class="button dpad-center" data-key="OK"></div>
+    
+    <!-- Number Pad -->
+    <div class="button key-1" data-key="1"></div>
+    <div class="button key-2" data-key="2"></div>
+    <div class="button key-3" data-key="3"></div>
+    <div class="button key-4" data-key="4"></div>
+    <div class="button key-5" data-key="5"></div>
+    <div class="button key-6" data-key="6"></div>
+    <div class="button key-7" data-key="7"></div>
+    <div class="button key-8" data-key="8"></div>
+    <div class="button key-9" data-key="9"></div>
+    <div class="button key-star" data-key="*"></div>
+    <div class="button key-0" data-key="0"></div>
+    <div class="button key-hash" data-key="#"></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('screen');
+    const ctx = canvas.getContext('2d');
+    
+    let lastKey = '';
+
+    // Initial red screen
+    function drawScreen() {
+      ctx.fillStyle = '#ff0000';
+      ctx.fillRect(0, 0, 240, 320);
+
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 24px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('Nokia 5130', 120, 160);
+      
+      if (lastKey) {
+        ctx.font = 'bold 40px monospace';
+        ctx.fillText(lastKey, 120, 220);
+        
+        ctx.font = '16px monospace';
+        ctx.fillText('Key Pressed', 120, 250);
+      }
+    }
+
+    // Handle button clicks
+    document.querySelectorAll('.button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const key = e.target.getAttribute('data-key');
+        lastKey = key;
+        drawScreen();
+        
+        // Visual feedback - highlight the red ring for center button
+        if (key === 'OK') {
+          e.target.style.opacity = '0.5';
+          setTimeout(() => {
+            e.target.style.opacity = '1';
+          }, 100);
+        }
+      });
+    });
+
+    drawScreen();
+  </script>
+</body>
+</html>
