@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Nokia 5130 Emulator</title>
+  <title>Nokia 5130 XpressMusic Emulator</title>
   <style>
     body {
       background: #222;
@@ -108,49 +108,31 @@
     <div class="button key-hash" data-key="#"></div>
   </div>
 
+  <!-- Load all modules -->
+  <script src="components/utils/Logger.js"></script>
+  <script src="components/utils/TimeFormatter.js"></script>
+  <script src="components/system/PhoneState.js"></script>
+  <script src="components/system/AudioManager.js"></script>
+  <script src="components/system/AssetLoader.js"></script>
+  <script src="components/ui/LongPressDetector.js"></script>
+  <script src="components/screen/BootScreen.js"></script>
+  <script src="components/screen/HomeScreen.js"></script>
+  <script src="components/screen/PowerOffScreen.js"></script>
+  <script src="components/screen/ScreenManager.js"></script>
+  <script src="scripts/boot.js"></script>
+
   <script>
-    const canvas = document.getElementById('screen');
-    const ctx = canvas.getContext('2d');
-    
-    let lastKey = '';
-
-    // Initial red screen
-    function drawScreen() {
-      ctx.fillStyle = '#ff0000';
-      ctx.fillRect(0, 0, 240, 320);
-
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 24px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('Nokia 5130', 120, 160);
+    // Initialize the Nokia 5130 boot system
+    document.addEventListener('DOMContentLoaded', async () => {
+      const canvas = document.getElementById('screen');
+      const bootController = new BootController();
       
-      if (lastKey) {
-        ctx.font = 'bold 40px monospace';
-        ctx.fillText(lastKey, 120, 220);
-        
-        ctx.font = '16px monospace';
-        ctx.fillText('Key Pressed', 120, 250);
+      try {
+        await bootController.initialize(canvas);
+      } catch (error) {
+        console.error('[MAIN] Failed to initialize emulator:', error);
       }
-    }
-
-    // Handle button clicks
-    document.querySelectorAll('.button').forEach(button => {
-      button.addEventListener('click', (e) => {
-        const key = e.target.getAttribute('data-key');
-        lastKey = key;
-        drawScreen();
-        
-        // Visual feedback - highlight the red ring for center button
-        if (key === 'OK') {
-          e.target.style.opacity = '0.5';
-          setTimeout(() => {
-            e.target.style.opacity = '1';
-          }, 100);
-        }
-      });
     });
-
-    drawScreen();
   </script>
 </body>
 </html>
