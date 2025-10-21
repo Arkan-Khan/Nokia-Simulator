@@ -172,4 +172,32 @@ For day-to-day development decisions not explicitly covered by this constitution
 
 ---
 
-**Version**: 1.0.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20
+## Project Status & Achievements
+
+### ✅ COMPLETED (v1.1.0)
+
+- Core OS: Boot sequence (video+audio), long‑press power, power‑off fade
+- State persistence via localStorage
+- Home screen: wallpaper, time/date, soft keys (Go to / Menu / Music)
+- Input & audio: keyclick with rapid presses, audio preload pipeline
+- Menu: dynamic app icons (auto from assets), 3×3 grid, linear row nav, column loop, sliding window, correct soft‑key sizing
+- Dialer & Calling: white dialer, right‑aligned number, blue calling with animated dots
+- Calculator app: D‑pad operators, center=equals, soft keys Back/Equals
+- Camera app: live preview, shutter sound, portrait crop (240×320), post‑capture preview with auto‑return
+- Gallery app: local photo store, list view with pink focus + auto‑scroll, Delete/Open/Back, fullscreen viewer
+
+### 🚧 IN PROGRESS
+
+- UI polish and cross‑browser validation
+
+### 📋 PLANNED (next)
+
+- FreeJ2ME‑Web integration and app launcher plumbing
+- Media Player (audio playback UI, progress, soft‑keys)
+- Settings: profiles, ringtone preview, brightness mock
+- Performance: lazy image decode, memory caps for photos, audio recycling
+- PWA/offline caching and basic tests
+
+---
+
+**Version**: 1.1.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-21
