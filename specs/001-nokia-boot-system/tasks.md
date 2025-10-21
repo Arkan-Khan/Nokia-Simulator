@@ -141,6 +141,79 @@
 
 ### Implementation for User Story 4
 
+- [x] T048 [P] [US4] Implement keyclick sound playback in ButtonHandler.js using AudioManager
+- [x] T049 [US4] Implement visual feedback (opacity change) for button presses in ButtonHandler.js
+- [x] T050 [US4] Implement hover state for keypad buttons in ButtonHandler.js (desktop only)
+- [x] T051 [US4] Implement rapid key press handling without audio overlap in ButtonHandler.js
+- [x] T052 [US4] Add keyclick sound to all number keys (0-9, *, #) in ButtonHandler.js
+- [x] T053 [US4] Add keyclick sound to navigation keys (up, down, left, right, center) in ButtonHandler.js
+- [x] T054 [US4] Add keyclick sound to soft keys (left, right) in ButtonHandler.js
+- [x] T055 [US4] Add keyclick sound to call keys (green, red) in ButtonHandler.js
+- [x] T056 [US4] Ensure keyclick sounds don't play when phone is powered off
+- [x] T057 [US4] Test keyclick audio with rapid button presses (no audio overlap issues)
+
+**Checkpoint**: At this point, User Stories 1, 2, 3, 4, AND 5 should all work independently
+
+---
+
+## Phase 8: User Story 6 - Dialer Functionality (Priority: P2)
+
+**Goal**: Enable dialer functionality with white background and calling animation
+
+**Independent Test**: Press any number key from home screen, verify dialer opens with white background and number display
+
+### Implementation for User Story 6
+
+- [x] T058 [P] [US6] Create DialerScreen.js in components/screen/ with white background
+- [x] T059 [US6] Implement number input display with right-aligned text
+- [x] T060 [US6] Implement 15-18 digit limit for dialed numbers
+- [x] T061 [US6] Implement soft key changes: "Go to" → "Call", "Music" → "Back"
+- [x] T062 [US6] Implement calling animation with blue background and animated dots
+- [x] T063 [US6] Implement call controls: green button starts call, red button ends call
+- [x] T064 [US6] Add DIALER and CALLING states to PhoneState.js
+- [x] T065 [US6] Integrate DialerScreen into ScreenManager.js
+- [x] T066 [US6] Implement number key navigation from home screen to dialer
+- [x] T067 [US6] Implement calling screen with "Calling..." animation
+- [x] T068 [US6] Implement call end functionality returning to dialer
+
+**Checkpoint**: At this point, User Stories 1, 2, 3, 4, 5, AND 6 should all work independently
+
+---
+
+## Phase 9: User Story 7 - Menu System (Priority: P2)
+
+**Goal**: Enable menu navigation with 3x3 grid and sliding view system
+
+**Independent Test**: Press center button from home screen, verify menu opens with 3x3 grid and navigation works
+
+### Implementation for User Story 7
+
+- [x] T069 [P] [US7] Create MenuScreen.js in components/screen/ with 3x3 grid layout
+- [x] T070 [US7] Implement 12 app icons with proper asset loading
+- [x] T071 [US7] Implement sliding view system for navigation through all apps
+- [x] T072 [US7] Implement focus highlighting with pink/reddish overlay
+- [x] T073 [US7] Implement D-pad navigation with column-wise looping
+- [x] T074 [US7] Implement row-wise navigation with sliding between views
+- [x] T075 [US7] Implement app name display above grid (not below icons)
+- [x] T076 [US7] Implement soft key styling: smaller text for Options/Exit, normal for Select
+- [x] T077 [US7] Implement black background for soft keys to hide apps behind
+- [x] T078 [US7] Add MENU state to PhoneState.js
+- [x] T079 [US7] Integrate MenuScreen into ScreenManager.js
+- [x] T080 [US7] Implement center button navigation from home screen to menu
+- [x] T081 [US7] Implement menu exit functionality returning to home screen
+
+**Checkpoint**: At this point, User Stories 1, 2, 3, 4, 5, 6, AND 7 should all work independently
+
+---
+
+## Phase 7: User Story 4 - Basic Keypad Interactivity (Priority: P2)
+
+**Goal**: Enable keypad interaction with audio feedback and visual effects
+
+**Independent Test**: With phone powered on, press various keypad buttons, verify keyclick sound plays and visual feedback shows
+
+### Implementation for User Story 4
+
 - [ ] T048 [P] [US4] Implement keyclick sound playback in ButtonHandler.js using AudioManager
 - [ ] T049 [US4] Implement visual feedback (opacity change) for button presses in ButtonHandler.js
 - [ ] T050 [US4] Implement hover state for keypad buttons in ButtonHandler.js (desktop only)
