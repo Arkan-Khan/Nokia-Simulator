@@ -200,6 +200,101 @@
       font-weight: bold;
       color: white;
     }
+    
+    /* Menu Screen Styles */
+    .menu-status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 5px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    
+    .app-name-display {
+      position: absolute;
+      top: 25px;
+      left: 10px;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+      text-align: left;
+      font-family: "Nokia Sans", Arial, sans-serif;
+    }
+    
+    .app-grid {
+      position: absolute;
+      top: 40px;
+      left: 10px;
+      right: 10px;
+      bottom: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+    
+    .app-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .app-icon img {
+      width: 32px;
+      height: 32px;
+      z-index: 2;
+      position: relative;
+    }
+    
+    .app-icon.focused::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 100, 150, 0.4);
+      border-radius: 6px;
+      border: 2px solid rgba(255, 100, 150, 0.8);
+      box-shadow: 0 0 10px rgba(255, 100, 150, 0.5);
+      z-index: 1;
+    }
+    
+    .menu-soft-keys {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: rgba(0, 0, 0, 1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .menu-soft-keys .soft-key:first-child,
+    .menu-soft-keys .soft-key:last-child {
+      font-size: 8px;
+    }
+    
+    .menu-soft-keys .soft-key:nth-child(2) {
+      font-size: 10px;
+    }
     .button {
       position: absolute;
       cursor: pointer;
@@ -291,6 +386,7 @@
   <script src="components/screen/HomeScreen.js"></script>
   <script src="components/screen/PowerOffScreen.js"></script>
   <script src="components/screen/DialerScreen.js"></script>
+  <script src="components/screen/MenuScreen.js"></script>
   <script src="components/screen/ScreenManager.js"></script>
   <script src="scripts/boot.js"></script>
 

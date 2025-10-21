@@ -10,6 +10,7 @@ class ScreenManager {
     // Initialize screen components
     this.bootScreen = new BootScreen(this.screenElement);
     this.homeScreen = new HomeScreen(this.screenElement);
+    this.menuScreen = new MenuScreen(this.screenElement);
     this.dialerScreen = new DialerScreen(this.screenElement);
     this.powerOffScreen = new PowerOffScreen(this.screenElement);
   }
@@ -48,6 +49,32 @@ class ScreenManager {
   renderHomeScreen(data) {
     this.currentScreen = 'home';
     this.homeScreen.render(data);
+  }
+
+  /**
+   * Render menu screen
+   * @param {string} wallpaperSrc - Wallpaper background
+   */
+  renderMenuScreen(wallpaperSrc = null) {
+    this.currentScreen = 'menu';
+    this.menuScreen.render(wallpaperSrc);
+  }
+
+  /**
+   * Navigate menu in direction
+   * @param {string} direction - 'up', 'down', 'left', 'right'
+   */
+  navigateMenu(direction) {
+    if (this.currentScreen === 'menu') {
+      this.menuScreen.navigate(direction);
+    }
+  }
+
+  /**
+   * Get current focused app in menu
+   */
+  getCurrentMenuApp() {
+    return this.menuScreen ? this.menuScreen.getCurrentApp() : null;
   }
 
   /**

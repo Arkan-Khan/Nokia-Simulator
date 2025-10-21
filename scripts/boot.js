@@ -144,6 +144,8 @@ class BootController {
     
     if (currentState === PhoneStates.HOME_SCREEN) {
       this.handleHomeScreenButton(key);
+    } else if (currentState === PhoneStates.MENU) {
+      this.handleMenuButton(key);
     } else if (currentState === PhoneStates.DIALER) {
       this.handleDialerButton(key);
     } else if (currentState === PhoneStates.CALLING) {
@@ -161,6 +163,38 @@ class BootController {
       // Switch to dialer and add the digit
       this.phoneState.transitionTo(PhoneStates.DIALER);
       this.screenManager.renderDialerScreen(key);
+    } else if (key === 'OK') {
+      // Center button - open menu
+      this.phoneState.transitionTo(PhoneStates.MENU);
+      const wallpaper = this.assetLoader.getImage('wallpaper');
+      this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+    }
+  }
+
+  /**
+   * Handle menu button presses
+   * @param {string} key - Button key
+   */
+  handleMenuButton(key) {
+    if (key === 'UP') {
+      this.screenManager.navigateMenu('up');
+    } else if (key === 'DOWN') {
+      this.screenManager.navigateMenu('down');
+    } else if (key === 'LEFT') {
+      this.screenManager.navigateMenu('left');
+    } else if (key === 'RIGHT') {
+      this.screenManager.navigateMenu('right');
+    } else if (key === 'OK') {
+      // Select current app
+      const currentApp = this.screenManager.getCurrentMenuApp();
+      if (currentApp) {
+        console.log(`[MENU] Selected app: ${currentApp.name}`);
+        // For now, just show a message - later we can implement actual apps
+      }
+    } else if (key === 'RSK' || key === 'END') {
+      // Exit menu - return to home screen
+      this.phoneState.transitionTo(PhoneStates.HOME_SCREEN);
+      this.renderHomeScreen();
     }
   }
 

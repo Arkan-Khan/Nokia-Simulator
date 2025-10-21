@@ -9,6 +9,7 @@ const PhoneStates = Object.freeze({
   POWERED_OFF: 'POWERED_OFF',
   BOOTING: 'BOOTING', 
   HOME_SCREEN: 'HOME_SCREEN',
+  MENU: 'MENU',
   DIALER: 'DIALER',
   CALLING: 'CALLING',
   POWERING_OFF: 'POWERING_OFF'
@@ -23,7 +24,8 @@ class PhoneState {
     this.transitions = {
       [PhoneStates.POWERED_OFF]: [PhoneStates.BOOTING],
       [PhoneStates.BOOTING]: [PhoneStates.HOME_SCREEN],
-      [PhoneStates.HOME_SCREEN]: [PhoneStates.DIALER, PhoneStates.POWERING_OFF],
+      [PhoneStates.HOME_SCREEN]: [PhoneStates.MENU, PhoneStates.DIALER, PhoneStates.POWERING_OFF],
+      [PhoneStates.MENU]: [PhoneStates.HOME_SCREEN],
       [PhoneStates.DIALER]: [PhoneStates.HOME_SCREEN, PhoneStates.CALLING],
       [PhoneStates.CALLING]: [PhoneStates.DIALER, PhoneStates.HOME_SCREEN],
       [PhoneStates.POWERING_OFF]: [PhoneStates.POWERED_OFF]
