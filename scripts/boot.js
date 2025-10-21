@@ -150,6 +150,34 @@ class BootController {
       this.handleDialerButton(key);
     } else if (currentState === PhoneStates.CALLING) {
       this.handleCallingButton(key);
+    } else if (currentState === PhoneStates.CALCULATOR) {
+      this.handleCalculatorButton(key);
+    }
+  }
+
+  /**
+   * Handle calculator button presses
+   */
+  handleCalculatorButton(key) {
+    if (/^[0-9]$/.test(key)) {
+      this.screenManager.calculatorAddDigit(key);
+    } else if (key === 'UP') {
+      this.screenManager.calculatorNavigate('up');
+    } else if (key === 'DOWN') {
+      this.screenManager.calculatorNavigate('down');
+    } else if (key === 'LEFT') {
+      this.screenManager.calculatorNavigate('left');
+    } else if (key === 'RIGHT') {
+      this.screenManager.calculatorNavigate('right');
+    } else if (key === 'OK') {
+      this.screenManager.calculatorEquals();
+    } else if (key === 'RSK') {
+      this.phoneState.transitionTo(PhoneStates.MENU);
+      const wallpaper = this.assetLoader.getImage('wallpaper');
+      this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+    } else if (key === 'END') {
+      this.phoneState.transitionTo(PhoneStates.HOME_SCREEN);
+      this.renderHomeScreen();
     }
   }
 
@@ -189,7 +217,12 @@ class BootController {
       const currentApp = this.screenManager.getCurrentMenuApp();
       if (currentApp) {
         console.log(`[MENU] Selected app: ${currentApp.name}`);
-        // For now, just show a message - later we can implement actual apps
+        const name = (currentApp.name || '').toLowerCase();
+        if (name.includes('calc')) {
+          this.phoneState.transitionTo(PhoneStates.CALCULATOR);
+          this.screenManager.renderCalculator();
+          return;
+        }
       }
     } else if (key === 'RSK' || key === 'END') {
       // Exit menu - return to home screen

@@ -12,6 +12,7 @@ const PhoneStates = Object.freeze({
   MENU: 'MENU',
   DIALER: 'DIALER',
   CALLING: 'CALLING',
+  CALCULATOR: 'CALCULATOR',
   POWERING_OFF: 'POWERING_OFF'
 });
 
@@ -24,10 +25,11 @@ class PhoneState {
     this.transitions = {
       [PhoneStates.POWERED_OFF]: [PhoneStates.BOOTING],
       [PhoneStates.BOOTING]: [PhoneStates.HOME_SCREEN],
-      [PhoneStates.HOME_SCREEN]: [PhoneStates.MENU, PhoneStates.DIALER, PhoneStates.POWERING_OFF],
-      [PhoneStates.MENU]: [PhoneStates.HOME_SCREEN],
+      [PhoneStates.HOME_SCREEN]: [PhoneStates.MENU, PhoneStates.DIALER, PhoneStates.CALCULATOR, PhoneStates.POWERING_OFF],
+      [PhoneStates.MENU]: [PhoneStates.HOME_SCREEN, PhoneStates.CALCULATOR],
       [PhoneStates.DIALER]: [PhoneStates.HOME_SCREEN, PhoneStates.CALLING],
       [PhoneStates.CALLING]: [PhoneStates.DIALER, PhoneStates.HOME_SCREEN],
+      [PhoneStates.CALCULATOR]: [PhoneStates.MENU, PhoneStates.HOME_SCREEN],
       [PhoneStates.POWERING_OFF]: [PhoneStates.POWERED_OFF]
     };
   }

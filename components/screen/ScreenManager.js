@@ -13,6 +13,7 @@ class ScreenManager {
     this.menuScreen = new MenuScreen(this.screenElement);
     this.dialerScreen = new DialerScreen(this.screenElement);
     this.powerOffScreen = new PowerOffScreen(this.screenElement);
+    this.calculatorScreen = new CalculatorScreen(this.screenElement);
   }
 
   /**
@@ -111,6 +112,26 @@ class ScreenManager {
    */
   getDialedNumber() {
     return this.dialerScreen ? this.dialerScreen.getDialedNumber() : '';
+  }
+
+  /**
+   * Render calculator
+   */
+  renderCalculator() {
+    this.currentScreen = 'calculator';
+    this.calculatorScreen.render();
+  }
+
+  calculatorAddDigit(d) {
+    if (this.currentScreen === 'calculator') this.calculatorScreen.addDigit(d);
+  }
+
+  calculatorNavigate(dir) {
+    if (this.currentScreen === 'calculator') this.calculatorScreen.navigateOperator(dir);
+  }
+
+  calculatorEquals() {
+    if (this.currentScreen === 'calculator') this.calculatorScreen.equals();
   }
 
   /**
