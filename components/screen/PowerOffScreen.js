@@ -3,8 +3,8 @@
  */
 
 class PowerOffScreen {
-  constructor(ctx) {
-    this.ctx = ctx;
+  constructor(screenElement) {
+    this.screenElement = screenElement;
   }
 
   /**
@@ -20,17 +20,15 @@ class PowerOffScreen {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Clear screen
-        this.ctx.fillStyle = '#000';
-        this.ctx.fillRect(0, 0, 240, 320);
-        
-        // Draw NOKIA text with fading opacity
+        // Calculate opacity for fade effect
         const opacity = 1 - progress;
-        this.ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-        this.ctx.font = 'bold 36px "Nokia Sans", Arial, sans-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('NOKIA', 120, 160);
+        
+        // Update screen content with fading NOKIA text
+        this.screenElement.innerHTML = `
+          <div class="screen-content" style="background: #000; display: flex; align-items: center; justify-content: center;">
+            <div style="color: rgba(255, 255, 255, ${opacity}); font-size: 36px; font-weight: bold; font-family: 'Nokia Sans', Arial, sans-serif;">NOKIA</div>
+          </div>
+        `;
         
         if (progress < 1) {
           requestAnimationFrame(animate);

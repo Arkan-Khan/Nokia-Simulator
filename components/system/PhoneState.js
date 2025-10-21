@@ -8,10 +8,9 @@
 const PhoneStates = Object.freeze({
   POWERED_OFF: 'POWERED_OFF',
   BOOTING: 'BOOTING', 
-  LOCKED: 'LOCKED',
-  UNLOCKING: 'UNLOCKING',
   HOME_SCREEN: 'HOME_SCREEN',
   DIALER: 'DIALER',
+  CALLING: 'CALLING',
   POWERING_OFF: 'POWERING_OFF'
 });
 
@@ -23,11 +22,10 @@ class PhoneState {
     // Valid state transitions
     this.transitions = {
       [PhoneStates.POWERED_OFF]: [PhoneStates.BOOTING],
-      [PhoneStates.BOOTING]: [PhoneStates.LOCKED],
-      [PhoneStates.LOCKED]: [PhoneStates.UNLOCKING, PhoneStates.POWERING_OFF],
-      [PhoneStates.UNLOCKING]: [PhoneStates.HOME_SCREEN, PhoneStates.DIALER],
-      [PhoneStates.HOME_SCREEN]: [PhoneStates.DIALER, PhoneStates.LOCKED, PhoneStates.POWERING_OFF],
-      [PhoneStates.DIALER]: [PhoneStates.HOME_SCREEN, PhoneStates.LOCKED],
+      [PhoneStates.BOOTING]: [PhoneStates.HOME_SCREEN],
+      [PhoneStates.HOME_SCREEN]: [PhoneStates.DIALER, PhoneStates.POWERING_OFF],
+      [PhoneStates.DIALER]: [PhoneStates.HOME_SCREEN, PhoneStates.CALLING],
+      [PhoneStates.CALLING]: [PhoneStates.DIALER, PhoneStates.HOME_SCREEN],
       [PhoneStates.POWERING_OFF]: [PhoneStates.POWERED_OFF]
     };
   }
@@ -48,6 +46,22 @@ class PhoneState {
   canTransition(targetState) {
     const validTransitions = this.transitions[this.currentState] || [];
     return validTransitions.includes(targetState);
+  }
+
+  /**
+   * Set state directly (for initialization/restoration)
+   * @param {string} newState - Target state
+   * @returns {boolean} True if state is valid
+   */
+  setState(newState) {
+    if (!Object.values(PhoneStates).includes(newState)) {
+      console.error(`[STATE] Invalid state: ${newState}`);
+      return false;
+    }
+    
+    this.stateHistory.push(this.currentState);
+    this.currentState = newState;
+    return true;
   }
 
   /**

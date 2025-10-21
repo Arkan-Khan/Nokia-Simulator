@@ -49,9 +49,17 @@ class AudioManager {
     }
     
     try {
-      audio.currentTime = 0; // Reset to start
-      await audio.play();
-      this.isAudioEnabled = true; // Mark audio as enabled after successful play
+      // For keyclick, create a new audio instance to allow overlapping
+      if (name === 'keyclick') {
+        const newAudio = audio.cloneNode();
+        newAudio.currentTime = 0;
+        await newAudio.play();
+        this.isAudioEnabled = true;
+      } else {
+        audio.currentTime = 0; // Reset to start
+        await audio.play();
+        this.isAudioEnabled = true; // Mark audio as enabled after successful play
+      }
     } catch (e) {
       if (e.name === 'NotAllowedError') {
         console.warn(`[AUDIO] Autoplay blocked for ${name}. User interaction required.`);

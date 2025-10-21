@@ -1,104 +1,79 @@
 /**
- * DialerScreen - Handles dialer functionality with number input
+ * DialerScreen - Renders the dialer interface with white background
  */
 
 class DialerScreen {
-  constructor(ctx) {
-    this.ctx = ctx;
-    this.phoneNumber = '';
-    this.maxDigits = 15; // Maximum phone number length
+  constructor(screenElement) {
+    this.screenElement = screenElement;
+    this.dialedNumber = '';
+    this.maxDigits = 18;
   }
 
   /**
-   * Render dialer screen with wallpaper and number display
-   * @param {HTMLImageElement|null} wallpaper - Wallpaper image
+   * Render dialer screen with white background
+   * @param {string} dialedNumber - Currently dialed number
    */
-  render(wallpaper) {
-    // Draw wallpaper or blue background
-    if (wallpaper) {
-      this.ctx.drawImage(wallpaper, 0, 0, 240, 320);
-    } else {
-      this.ctx.fillStyle = '#1a5fb4';
-      this.ctx.fillRect(0, 0, 240, 320);
-    }
+  render(dialedNumber = '') {
+    this.dialedNumber = dialedNumber;
     
-    // Draw number display area
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    this.ctx.fillRect(10, 20, 220, 60);
-    
-    // Draw phone number
-    this.ctx.fillStyle = '#fff';
-    this.ctx.font = 'normal 24px "Nokia Sans", Arial, sans-serif';
-    this.ctx.textAlign = 'center';
-    this.ctx.textBaseline = 'middle';
-    this.ctx.fillText(this.phoneNumber || 'Enter number', 120, 50);
-    
-    // Draw call button (green)
-    this.ctx.fillStyle = '#4CAF50';
-    this.ctx.fillRect(20, 100, 80, 40);
-    this.ctx.fillStyle = '#fff';
-    this.ctx.font = 'normal 16px "Nokia Sans", Arial, sans-serif';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText('Call', 60, 120);
-    
-    // Draw clear button (red)
-    this.ctx.fillStyle = '#f44336';
-    this.ctx.fillRect(140, 100, 80, 40);
-    this.ctx.fillStyle = '#fff';
-    this.ctx.font = 'normal 16px "Nokia Sans", Arial, sans-serif';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText('Clear', 180, 120);
-    
-    // Draw soft key labels
-    this.ctx.fillStyle = '#fff';
-    this.ctx.font = 'normal 16px "Nokia Sans", Arial, sans-serif';
-    this.ctx.textAlign = 'left';
-    this.ctx.fillText('Back', 10, 310);
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText('Dialer', 120, 310);
-    this.ctx.textAlign = 'right';
-    this.ctx.fillText('Lock', 230, 310);
+    this.screenElement.innerHTML = `
+      <div class="screen-content" style="background: #fff; color: #000;">
+        <!-- Status Bar (top) -->
+        <div class="dialer-status-bar">
+          <div class="dialer-signal">📶</div>
+          <div class="dialer-time">${new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12: false})}</div>
+          <div class="dialer-battery">🔋</div>
+        </div>
+        
+        <!-- Dialer Content -->
+        <div class="dialer-content">
+          <div class="dialed-number">${this.dialedNumber || 'Enter number'}</div>
+        </div>
+        
+        <!-- Soft Keys (bottom) -->
+        <div class="dialer-soft-keys">
+          <div class="soft-key">Call</div>
+          <div class="soft-key">Back</div>
+        </div>
+      </div>
+    `;
   }
 
   /**
-   * Add digit to phone number
+   * Add digit to dialed number
    * @param {string} digit - Digit to add
    */
   addDigit(digit) {
-    if (this.phoneNumber.length < this.maxDigits) {
-      this.phoneNumber += digit;
+    if (this.dialedNumber.length < this.maxDigits) {
+      this.dialedNumber += digit;
+      this.render(this.dialedNumber);
     }
-  }
-
-  /**
-   * Clear phone number
-   */
-  clearNumber() {
-    this.phoneNumber = '';
   }
 
   /**
    * Remove last digit
    */
-  backspace() {
-    if (this.phoneNumber.length > 0) {
-      this.phoneNumber = this.phoneNumber.slice(0, -1);
+  removeDigit() {
+    if (this.dialedNumber.length > 0) {
+      this.dialedNumber = this.dialedNumber.slice(0, -1);
+      this.render(this.dialedNumber);
     }
   }
 
   /**
-   * Get current phone number
-   * @returns {string}
+   * Clear all digits
    */
-  getPhoneNumber() {
-    return this.phoneNumber;
+  clearNumber() {
+    this.dialedNumber = '';
+    this.render('');
   }
 
   /**
-   * Reset dialer state
+   * Get current dialed number
+   * @returns {string} Current dialed number
    */
-  reset() {
-    this.phoneNumber = '';
+  getDialedNumber() {
+    return this.dialedNumber;
   }
 }
 

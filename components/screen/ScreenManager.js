@@ -3,25 +3,24 @@
  */
 
 class ScreenManager {
-  constructor(canvas) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext('2d');
+  constructor(screenElement) {
+    this.screenElement = screenElement;
     this.currentScreen = 'black';
     
     // Initialize screen components
-    this.bootScreen = new BootScreen(this.ctx);
-    this.homeScreen = new HomeScreen(this.ctx);
-    this.powerOffScreen = new PowerOffScreen(this.ctx);
-    this.lockScreen = new LockScreen(this.ctx);
-    this.dialerScreen = new DialerScreen(this.ctx);
+    this.bootScreen = new BootScreen(this.screenElement);
+    this.homeScreen = new HomeScreen(this.screenElement);
+    this.dialerScreen = new DialerScreen(this.screenElement);
+    this.powerOffScreen = new PowerOffScreen(this.screenElement);
   }
 
   /**
    * Clear screen to black
    */
   clear() {
-    this.ctx.fillStyle = '#000';
-    this.ctx.fillRect(0, 0, 240, 320);
+    this.screenElement.innerHTML = `
+      <div class="screen-content" style="background: #000; width: 100%; height: 100%;"></div>
+    `;
     this.currentScreen = 'black';
   }
 
@@ -52,45 +51,48 @@ class ScreenManager {
   }
 
   /**
+   * Render dialer screen
+   * @param {string} dialedNumber - Currently dialed number
+   */
+  renderDialerScreen(dialedNumber = '') {
+    this.currentScreen = 'dialer';
+    this.dialerScreen.render(dialedNumber);
+  }
+
+  /**
+   * Add digit to dialer
+   * @param {string} digit - Digit to add
+   */
+  addDialerDigit(digit) {
+    if (this.currentScreen === 'dialer') {
+      this.dialerScreen.addDigit(digit);
+    }
+  }
+
+  /**
+   * Remove last digit from dialer
+   */
+  removeDialerDigit() {
+    if (this.currentScreen === 'dialer') {
+      this.dialerScreen.removeDigit();
+    }
+  }
+
+  /**
+   * Get current dialed number
+   * @returns {string} Current dialed number
+   */
+  getDialedNumber() {
+    return this.dialerScreen ? this.dialerScreen.getDialedNumber() : '';
+  }
+
+  /**
    * Render power-off animation
    * @returns {Promise<void>}
    */
   async renderPowerOffAnimation() {
     this.currentScreen = 'poweroff';
     return await this.powerOffScreen.playFadeOut();
-  }
-
-  /**
-   * Render lock screen
-   */
-  renderLockScreen() {
-    this.currentScreen = 'locked';
-    this.lockScreen.render();
-  }
-
-  /**
-   * Render dialer screen
-   * @param {HTMLImageElement|null} wallpaper - Wallpaper image
-   */
-  renderDialerScreen(wallpaper) {
-    this.currentScreen = 'dialer';
-    this.dialerScreen.render(wallpaper);
-  }
-
-  /**
-   * Get lock screen instance
-   * @returns {LockScreen}
-   */
-  getLockScreen() {
-    return this.lockScreen;
-  }
-
-  /**
-   * Get dialer screen instance
-   * @returns {DialerScreen}
-   */
-  getDialerScreen() {
-    return this.dialerScreen;
   }
 }
 

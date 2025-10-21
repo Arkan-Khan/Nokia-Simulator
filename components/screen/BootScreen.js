@@ -1,10 +1,10 @@
 /**
- * BootScreen - Handles boot animation rendering (GIF or fallback text)
+ * BootScreen - Handles boot animation rendering (Video or fallback text)
  */
 
 class BootScreen {
-  constructor(ctx) {
-    this.ctx = ctx;
+  constructor(screenElement) {
+    this.screenElement = screenElement;
   }
 
   /**
@@ -14,20 +14,19 @@ class BootScreen {
    */
   async playBootAnimation(videoSrc) {
     return new Promise((resolve, reject) => {
+      // Show black screen first (like before)
+      this.screenElement.innerHTML = `
+        <div class="screen-content" style="background: #000; width: 100%; height: 100%;"></div>
+      `;
+      
       const video = document.createElement('video');
       video.src = videoSrc;
       video.muted = true; // Mute video since we have separate audio
       video.loop = false;
-      video.style.display = 'none';
       video.preload = 'auto';
-      document.body.appendChild(video);
-      
       
       // Timeout fallback - if video doesn't load in 3 seconds, use fallback
       const timeoutId = setTimeout(() => {
-        if (document.body.contains(video)) {
-          document.body.removeChild(video);
-        }
         this.renderFallbackBoot();
         setTimeout(() => {
           resolve();
@@ -43,56 +42,35 @@ class BootScreen {
         // Start video earlier - only 1.5 seconds delay maximum
         const syncDelay = Math.min(1500, Math.max(0, audioDuration - videoDuration));
         
-        // Clear screen
-        this.ctx.fillStyle = '#000';
-        this.ctx.fillRect(0, 0, 240, 320);
-        
-        let videoStarted = false;
-        let animationComplete = false;
-        
         // Start video playback after sync delay
         setTimeout(() => {
-          video.play().then(() => {
-            videoStarted = true;
+          // Show video in screen
+          this.screenElement.innerHTML = `
+            <div class="screen-content" style="background: #000;">
+              <video style="width: 100%; height: 100%; object-fit: cover;" autoplay muted></video>
+            </div>
+          `;
+          
+          const videoElement = this.screenElement.querySelector('video');
+          videoElement.src = videoSrc;
+          
+          videoElement.play().then(() => {
+            // Video started successfully
           }).catch(e => {
             console.error('[BOOT] Video play failed:', e);
             this.renderFallbackBoot();
             setTimeout(() => resolve(), 3000);
           });
-        }, syncDelay);
-        
-        // Draw video frames to canvas
-        const drawFrame = () => {
-          if (videoStarted && !video.paused && !video.ended) {
-            // Draw video frame
-            this.ctx.drawImage(video, 0, 0, 240, 320);
-            requestAnimationFrame(drawFrame);
-          } else if (videoStarted && video.ended && !animationComplete) {
-            animationComplete = true;
-            if (document.body.contains(video)) {
-              document.body.removeChild(video);
-            }
+          
+          videoElement.addEventListener('ended', () => {
             resolve();
-          } else if (!videoStarted) {
-            // During sync delay, keep showing black screen
-            this.ctx.fillStyle = '#000';
-            this.ctx.fillRect(0, 0, 240, 320);
-            requestAnimationFrame(drawFrame);
-          } else {
-            requestAnimationFrame(drawFrame);
-          }
-        };
-        
-        // Start drawing frames immediately
-        drawFrame();
+          });
+        }, syncDelay);
       });
       
       video.addEventListener('error', (e) => {
         console.error('[BOOT] Failed to load video:', e);
         clearTimeout(timeoutId);
-        if (document.body.contains(video)) {
-          document.body.removeChild(video);
-        }
         this.renderFallbackBoot();
         setTimeout(() => {
           resolve();
@@ -107,14 +85,11 @@ class BootScreen {
    * Fallback: Text-based boot animation
    */
   renderFallbackBoot() {
-    this.ctx.fillStyle = '#000';
-    this.ctx.fillRect(0, 0, 240, 320);
-    
-    this.ctx.fillStyle = '#fff';
-    this.ctx.font = 'bold 36px "Nokia Sans", Arial, sans-serif';
-    this.ctx.textAlign = 'center';
-    this.ctx.textBaseline = 'middle';
-    this.ctx.fillText('NOKIA', 120, 160);
+    this.screenElement.innerHTML = `
+      <div class="screen-content" style="background: #000; display: flex; align-items: center; justify-content: center;">
+        <div style="color: white; font-size: 36px; font-weight: bold; font-family: 'Nokia Sans', Arial, sans-serif;">NOKIA</div>
+      </div>
+    `;
   }
 }
 
