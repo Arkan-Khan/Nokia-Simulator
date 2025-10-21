@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Nokia 5130 Emulator</title>
+  <title>Nokia 5130 XpressMusic Emulator</title>
   <style>
     body {
       background: #222;
@@ -18,7 +18,7 @@
       position: relative;
       width: 229px;
       height: 527px;
-      background: url('Nokia.png') no-repeat center/contain;
+      background: url('assets/images/Nokia.png') no-repeat center/contain;
       cursor: default;
     }
     .screen {
@@ -27,8 +27,273 @@
       top: 99px;
       width: 152px;
       height: 202px;
-      image-rendering: pixelated;
       border: 1px solid #000;
+      overflow: hidden;
+      background: #000;
+    }
+    
+    /* Screen content styles */
+    .screen-content {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      color: white;
+      font-family: "Nokia Sans", Arial, sans-serif;
+    }
+    
+    .status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 5px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .status-info {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      font-size: 10px;
+      font-weight: normal;
+      color: white;
+      line-height: 1.2;
+    }
+    
+    .status-info div {
+      margin-bottom: 2px;
+    }
+    
+    .time-display {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: right;
+    }
+    
+    
+    .soft-keys {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 25px;
+      background: rgba(80, 20, 40, 0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 11px;
+      font-weight: normal;
+    }
+    
+    .soft-key {
+      color: white;
+    }
+    
+    /* Dialer Screen Styles */
+    .dialer-status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 20px;
+      background: #000;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 5px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    
+    .dialer-content {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      bottom: 30px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      background: #fff;
+      padding: 10px;
+    }
+    
+    .dialed-number {
+      font-size: 24px;
+      font-weight: bold;
+      color: #000;
+      text-align: right;
+      font-family: "Nokia Sans", Arial, sans-serif;
+    }
+    
+    .dialer-soft-keys {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    /* Calling Screen Styles */
+    .calling-content {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      background: #1a5fb4;
+      padding: 10px;
+    }
+    
+    .calling-status {
+      font-size: 14px;
+      font-weight: normal;
+      color: white;
+      margin-bottom: 10px;
+      font-family: "Nokia Sans", Arial, sans-serif;
+    }
+    
+    .calling-number {
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      font-family: "Nokia Sans", Arial, sans-serif;
+    }
+    
+    .calling-soft-keys {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    /* Menu Screen Styles */
+    .menu-status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 5px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    
+    .app-name-display {
+      position: absolute;
+      top: 25px;
+      left: 10px;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+      text-align: left;
+      font-family: "Nokia Sans", Arial, sans-serif;
+    }
+    
+    .app-grid {
+      position: absolute;
+      top: 40px;
+      left: 10px;
+      right: 10px;
+      bottom: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+    
+    .app-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .app-icon img {
+      width: 32px;
+      height: 32px;
+      z-index: 2;
+      position: relative;
+    }
+    
+    .app-icon.focused::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 100, 150, 0.4);
+      border-radius: 6px;
+      border: 2px solid rgba(255, 100, 150, 0.8);
+      box-shadow: 0 0 10px rgba(255, 100, 150, 0.5);
+      z-index: 1;
+    }
+    
+    .menu-soft-keys {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: rgba(0, 0, 0, 1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .menu-soft-keys .soft-key:first-child,
+    .menu-soft-keys .soft-key:last-child {
+      font-size: 8px;
+    }
+    
+    .menu-soft-keys .soft-key:nth-child(2) {
+      font-size: 10px;
     }
     .button {
       position: absolute;
@@ -76,7 +341,9 @@
 </head>
 <body>
   <div class="phone">
-    <canvas id="screen" class="screen" width="240" height="320"></canvas>
+    <div id="screen" class="screen">
+      <!-- Screen content will be dynamically inserted here -->
+    </div>
     
     <!-- Soft Keys -->
     <div class="button left-soft" data-key="LSK"></div>
@@ -108,49 +375,37 @@
     <div class="button key-hash" data-key="#"></div>
   </div>
 
+  <!-- Load all modules -->
+  <script src="components/utils/Logger.js"></script>
+  <script src="components/utils/TimeFormatter.js"></script>
+  <script src="components/system/PhoneState.js"></script>
+  <script src="components/system/AudioManager.js"></script>
+  <script src="components/system/AssetLoader.js"></script>
+  <script src="components/utils/PhotoStore.js"></script>
+  <script src="components/ui/LongPressDetector.js"></script>
+  <script src="components/screen/BootScreen.js"></script>
+  <script src="components/screen/HomeScreen.js"></script>
+  <script src="components/screen/PowerOffScreen.js"></script>
+  <script src="components/screen/DialerScreen.js"></script>
+  <script src="components/screen/MenuScreen.js"></script>
+  <script src="components/screen/CameraScreen.js"></script>
+  <script src="components/screen/GalleryScreen.js"></script>
+  <script src="components/screen/CalculatorScreen.js"></script>
+  <script src="components/screen/ScreenManager.js"></script>
+  <script src="scripts/boot.js"></script>
+
   <script>
-    const canvas = document.getElementById('screen');
-    const ctx = canvas.getContext('2d');
-    
-    let lastKey = '';
-
-    // Initial red screen
-    function drawScreen() {
-      ctx.fillStyle = '#ff0000';
-      ctx.fillRect(0, 0, 240, 320);
-
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 24px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('Nokia 5130', 120, 160);
+    // Initialize the Nokia 5130 boot system
+    document.addEventListener('DOMContentLoaded', async () => {
+      const screenElement = document.getElementById('screen');
+      const bootController = new BootController();
       
-      if (lastKey) {
-        ctx.font = 'bold 40px monospace';
-        ctx.fillText(lastKey, 120, 220);
-        
-        ctx.font = '16px monospace';
-        ctx.fillText('Key Pressed', 120, 250);
+      try {
+        await bootController.initialize(screenElement);
+      } catch (error) {
+        console.error('[MAIN] Failed to initialize emulator:', error);
       }
-    }
-
-    // Handle button clicks
-    document.querySelectorAll('.button').forEach(button => {
-      button.addEventListener('click', (e) => {
-        const key = e.target.getAttribute('data-key');
-        lastKey = key;
-        drawScreen();
-        
-        // Visual feedback - highlight the red ring for center button
-        if (key === 'OK') {
-          e.target.style.opacity = '0.5';
-          setTimeout(() => {
-            e.target.style.opacity = '1';
-          }, 100);
-        }
-      });
     });
-
-    drawScreen();
   </script>
 </body>
 </html>
