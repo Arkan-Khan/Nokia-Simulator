@@ -13,6 +13,8 @@ const PhoneStates = Object.freeze({
   DIALER: 'DIALER',
   CALLING: 'CALLING',
   CALCULATOR: 'CALCULATOR',
+  CAMERA: 'CAMERA',
+  GALLERY: 'GALLERY',
   POWERING_OFF: 'POWERING_OFF'
 });
 
@@ -25,11 +27,13 @@ class PhoneState {
     this.transitions = {
       [PhoneStates.POWERED_OFF]: [PhoneStates.BOOTING],
       [PhoneStates.BOOTING]: [PhoneStates.HOME_SCREEN],
-      [PhoneStates.HOME_SCREEN]: [PhoneStates.MENU, PhoneStates.DIALER, PhoneStates.CALCULATOR, PhoneStates.POWERING_OFF],
-      [PhoneStates.MENU]: [PhoneStates.HOME_SCREEN, PhoneStates.CALCULATOR],
+      [PhoneStates.HOME_SCREEN]: [PhoneStates.MENU, PhoneStates.DIALER, PhoneStates.CALCULATOR, PhoneStates.CAMERA, PhoneStates.GALLERY, PhoneStates.POWERING_OFF],
+      [PhoneStates.MENU]: [PhoneStates.HOME_SCREEN, PhoneStates.CALCULATOR, PhoneStates.CAMERA, PhoneStates.GALLERY],
       [PhoneStates.DIALER]: [PhoneStates.HOME_SCREEN, PhoneStates.CALLING],
       [PhoneStates.CALLING]: [PhoneStates.DIALER, PhoneStates.HOME_SCREEN],
       [PhoneStates.CALCULATOR]: [PhoneStates.MENU, PhoneStates.HOME_SCREEN],
+      [PhoneStates.CAMERA]: [PhoneStates.MENU, PhoneStates.HOME_SCREEN, PhoneStates.GALLERY],
+      [PhoneStates.GALLERY]: [PhoneStates.MENU, PhoneStates.HOME_SCREEN, PhoneStates.CAMERA],
       [PhoneStates.POWERING_OFF]: [PhoneStates.POWERED_OFF]
     };
   }

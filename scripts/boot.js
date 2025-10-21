@@ -17,7 +17,8 @@ class BootController {
       bootVideo: 'assets/boot/Boot video.mp4',
       bootAudio: 'assets/boot/nokia_boot_audio.mp3',
       keyclickAudio: 'assets/sounds/keyclick.mp3',
-      wallpaper: 'assets/wallpapers/Wallpaper1.jpg'
+      wallpaper: 'assets/wallpapers/Wallpaper1.jpg',
+      cameraShutter: 'assets/sounds/camera-capture.mp3'
     };
     
     this.isInitialized = false;
@@ -80,9 +81,14 @@ class BootController {
       // Preload audio assets
       await this.audioManager.preload('boot_sound', this.assets.bootAudio);
       await this.audioManager.preload('keyclick', this.assets.keyclickAudio);
+      await this.audioManager.preload('camera_shutter', this.assets.cameraShutter);
       
       // Load wallpaper
-      await this.assetLoader.loadImage('wallpaper', this.assets.wallpaper);
+      try {
+        await this.assetLoader.loadImage('wallpaper', this.assets.wallpaper);
+      } catch (e) {
+        console.warn('[BOOT] Wallpaper failed, will render without');
+      }
       
     } catch (error) {
       console.warn('[BOOT] Some assets failed to load:', error);
@@ -116,16 +122,15 @@ class BootController {
       button.addEventListener('click', (e) => {
         e.preventDefault();
         
-        const currentState = this.phoneState.getCurrentState();
-        
-        // Don't play keyclick when powered off
-        if (currentState !== PhoneStates.POWERED_OFF) {
-          this.audioManager.play('keyclick').catch(() => {
-            // Ignore audio errors
-          });
-        }
-        
         const key = button.getAttribute('data-key');
+        const currentState = this.phoneState.getCurrentState();
+        // Play keyclick for most keys, but suppress during camera shutter
+        if (currentState !== PhoneStates.POWERED_OFF) {
+          const suppressClick = (currentState === PhoneStates.CAMERA) && (key === 'OK' || key === 'CALL');
+          if (!suppressClick) {
+            this.audioManager.play('keyclick').catch(() => {});
+          }
+        }
         this.handleButtonPress(key);
       });
     });
@@ -152,6 +157,10 @@ class BootController {
       this.handleCallingButton(key);
     } else if (currentState === PhoneStates.CALCULATOR) {
       this.handleCalculatorButton(key);
+    } else if (currentState === PhoneStates.CAMERA) {
+      this.handleCameraButton(key);
+    } else if (currentState === PhoneStates.GALLERY) {
+      this.handleGalleryButton(key);
     }
   }
 
@@ -175,6 +184,53 @@ class BootController {
       this.phoneState.transitionTo(PhoneStates.MENU);
       const wallpaper = this.assetLoader.getImage('wallpaper');
       this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+    } else if (key === 'END') {
+      this.phoneState.transitionTo(PhoneStates.HOME_SCREEN);
+      this.renderHomeScreen();
+    }
+  }
+
+  /** Camera controls */
+  handleCameraButton(key) {
+    if (key === 'OK' || key === 'CALL') {
+      // Shutter sound
+      this.audioManager.play('camera_shutter').catch(()=>{});
+      const item = this.screenManager.capturePhoto();
+      if (item) {
+        this.screenManager.cameraScreen && this.screenManager.cameraScreen.showPreview(item.dataUrl, 2500);
+      }
+    } else if (key === 'RSK') {
+      this.screenManager.stopCamera();
+      this.phoneState.transitionTo(PhoneStates.MENU);
+      const wallpaper = this.assetLoader.getImage('wallpaper');
+      this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+    } else if (key === 'END') {
+      this.screenManager.stopCamera();
+      this.phoneState.transitionTo(PhoneStates.HOME_SCREEN);
+      this.renderHomeScreen();
+    }
+  }
+
+  /** Gallery controls */
+  handleGalleryButton(key) {
+    if (key === 'UP') this.screenManager.galleryNavigate('up');
+    else if (key === 'DOWN') this.screenManager.galleryNavigate('down');
+    else if (key === 'OK') this.screenManager.galleryOpen();
+    else if (key === 'LSK') {
+      // Delete in list view
+      if (this.screenManager.galleryScreen && !this.screenManager.galleryScreen.viewing) {
+        this.screenManager.galleryScreen.deleteFocused();
+      }
+    }
+    else if (key === 'RSK') {
+      // If viewing image, go back to list; else exit to menu
+      if (this.screenManager.galleryScreen && this.screenManager.galleryScreen.viewing) {
+        this.screenManager.renderGalleryList();
+      } else {
+        this.phoneState.transitionTo(PhoneStates.MENU);
+        const wallpaper = this.assetLoader.getImage('wallpaper');
+        this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+      }
     } else if (key === 'END') {
       this.phoneState.transitionTo(PhoneStates.HOME_SCREEN);
       this.renderHomeScreen();
@@ -221,6 +277,14 @@ class BootController {
         if (name.includes('calc')) {
           this.phoneState.transitionTo(PhoneStates.CALCULATOR);
           this.screenManager.renderCalculator();
+          return;
+        } else if (name.includes('camera')) {
+          this.phoneState.transitionTo(PhoneStates.CAMERA);
+          this.screenManager.renderCamera();
+          return;
+        } else if (name.includes('gallery')) {
+          this.phoneState.transitionTo(PhoneStates.GALLERY);
+          this.screenManager.renderGalleryList();
           return;
         }
       }
@@ -371,6 +435,8 @@ class BootController {
       
       // Transition to home screen
       if (this.phoneState.transitionTo(PhoneStates.HOME_SCREEN)) {
+        // Ensure assets (including wallpaper) are ready before first render
+        try { await this.preloadAssets(); } catch {}
         // Save state to localStorage
         localStorage.setItem('nokia5130_state', PhoneStates.HOME_SCREEN);
         await this.renderHomeScreen();
@@ -426,11 +492,11 @@ class BootController {
    */
   async renderHomeScreen() {
     const homeData = {
-      time: this.timeFormatter.getCurrentTime(true), // 24-hour format
+      time: this.timeFormatter.getCurrentTime(true),
       date: this.timeFormatter.getCurrentDate(),
       wallpaper: this.assetLoader.getImage('wallpaper'),
-      battery: null, // Will add battery icon later
-      signal: null   // Will add signal icon later
+      battery: null,
+      signal: null
     };
 
     this.screenManager.renderHomeScreen(homeData);

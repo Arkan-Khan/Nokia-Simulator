@@ -14,6 +14,8 @@ class ScreenManager {
     this.dialerScreen = new DialerScreen(this.screenElement);
     this.powerOffScreen = new PowerOffScreen(this.screenElement);
     this.calculatorScreen = new CalculatorScreen(this.screenElement);
+    this.cameraScreen = new CameraScreen(this.screenElement);
+    this.galleryScreen = new GalleryScreen(this.screenElement);
   }
 
   /**
@@ -132,6 +134,30 @@ class ScreenManager {
 
   calculatorEquals() {
     if (this.currentScreen === 'calculator') this.calculatorScreen.equals();
+  }
+
+  // Camera
+  renderCamera() {
+    this.currentScreen = 'camera';
+    return this.cameraScreen.render();
+  }
+  stopCamera() {
+    this.cameraScreen.stopPreview();
+  }
+  capturePhoto() {
+    return this.cameraScreen.capture();
+  }
+
+  // Gallery
+  renderGalleryList() {
+    this.currentScreen = 'gallery';
+    this.galleryScreen.renderList();
+  }
+  galleryNavigate(dir) {
+    this.galleryScreen.navigate(dir);
+  }
+  galleryOpen() {
+    this.galleryScreen.renderImage();
   }
 
   /**
