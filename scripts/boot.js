@@ -161,6 +161,8 @@ class BootController {
       this.handleCameraButton(key);
     } else if (currentState === PhoneStates.GALLERY) {
       this.handleGalleryButton(key);
+    } else if (currentState === PhoneStates.CALLS) {
+      this.handleCallsButton(key);
     }
   }
 
@@ -286,6 +288,10 @@ class BootController {
           this.phoneState.transitionTo(PhoneStates.GALLERY);
           this.screenManager.renderGalleryList();
           return;
+        } else if (name.includes('call')) {
+          this.phoneState.transitionTo(PhoneStates.CALLS);
+          this.screenManager.renderCallsList();
+          return;
         }
       }
     } else if (key === 'RSK' || key === 'END') {
@@ -305,6 +311,8 @@ class BootController {
       this.screenManager.addDialerDigit(key);
     } else if (key === 'LSK' || key === 'CALL') {
       // Call button - start calling
+      const number = this.screenManager.getDialedNumber();
+      try { CallLogStore.add({ number, type: 'outgoing' }); } catch {}
       this.phoneState.transitionTo(PhoneStates.CALLING);
       this.renderCallingScreen();
     } else if (key === 'RSK' || key === 'END') {
@@ -324,6 +332,27 @@ class BootController {
       this.stopCallingAnimation();
       this.phoneState.transitionTo(PhoneStates.HOME_SCREEN);
       this.renderHomeScreen();
+    }
+  }
+
+  /** Calls app controls */
+  handleCallsButton(key) {
+    if (key === 'UP') this.screenManager.callsNavigate('up');
+    else if (key === 'DOWN') this.screenManager.callsNavigate('down');
+    else if (key === 'LSK') this.screenManager.callsDelete();
+    else if (key === 'OK' || key === 'CALL') {
+      const num = this.screenManager.callsGetFocusedNumber();
+      if (num) {
+        try { CallLogStore.add({ number: num, type: 'outgoing' }); } catch {}
+        this.phoneState.transitionTo(PhoneStates.CALLING);
+        // Seed dialer number for display
+        this.screenManager.dialerScreen && this.screenManager.dialerScreen.setNumber && this.screenManager.dialerScreen.setNumber(num);
+        this.renderCallingScreen();
+      }
+    } else if (key === 'RSK' || key === 'END') {
+      this.phoneState.transitionTo(PhoneStates.MENU);
+      const wallpaper = this.assetLoader.getImage('wallpaper');
+      this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
     }
   }
 

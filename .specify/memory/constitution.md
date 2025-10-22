@@ -185,6 +185,7 @@ For day-to-day development decisions not explicitly covered by this constitution
 - Calculator app: D‑pad operators, center=equals, soft keys Back/Equals
 - Camera app: live preview, shutter sound, portrait crop (240×320), post‑capture preview with auto‑return
 - Gallery app: local photo store, list view with pink focus + auto‑scroll, Delete/Open/Back, fullscreen viewer
+- Calls app: recent calls list, dd/mm/yy + time, soft keys (Delete/Call/Back), logs saved on call
 
 ### 🚧 IN PROGRESS
 

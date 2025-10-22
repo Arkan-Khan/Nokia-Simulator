@@ -16,6 +16,7 @@ class ScreenManager {
     this.calculatorScreen = new CalculatorScreen(this.screenElement);
     this.cameraScreen = new CameraScreen(this.screenElement);
     this.galleryScreen = new GalleryScreen(this.screenElement);
+    this.callsScreen = new CallsScreen(this.screenElement);
   }
 
   /**
@@ -158,6 +159,21 @@ class ScreenManager {
   }
   galleryOpen() {
     this.galleryScreen.renderImage();
+  }
+
+  // Calls
+  renderCallsList() {
+    this.currentScreen = 'calls';
+    this.callsScreen.renderList();
+  }
+  callsNavigate(dir) {
+    this.callsScreen.navigate(dir);
+  }
+  callsDelete() {
+    this.callsScreen.deleteFocused();
+  }
+  callsGetFocusedNumber() {
+    return this.callsScreen.getFocusedNumber();
   }
 
   /**
