@@ -186,10 +186,13 @@ For day-to-day development decisions not explicitly covered by this constitution
 - Camera app: live preview, shutter sound, portrait crop (240×320), post‑capture preview with auto‑return
 - Gallery app: local photo store, list view with pink focus + auto‑scroll, Delete/Open/Back, fullscreen viewer
 - Calls app: recent calls list, dd/mm/yy + time, soft keys (Delete/Call/Back), logs saved on call
+- Contacts app: list/filter with multi‑tap search (# backspace, * clear), view, add/edit with classic multi‑tap
 
 ### 🚧 IN PROGRESS
 
 - UI polish and cross‑browser validation
+- Notepad app: multi‑tap editor, list, edit/delete
+- Clock app: main time/date with scaffolding for Alarms/Stopwatch/Timer
 
 ### 📋 PLANNED (next)
 

@@ -165,6 +165,10 @@ class BootController {
       this.handleCallsButton(key);
     } else if (currentState === PhoneStates.CONTACTS) {
       this.handleContactsButton(key);
+    } else if (currentState === PhoneStates.NOTEPAD) {
+      this.handleNotepadButton(key);
+    } else if (currentState === PhoneStates.CLOCK) {
+      this.handleClockButton(key);
     }
   }
 
@@ -316,6 +320,19 @@ class BootController {
             }
           };
           return;
+        } else if (name.includes('note')) {
+          this.phoneState.transitionTo(PhoneStates.NOTEPAD);
+          this.screenManager.renderNotepadList();
+          this.screenManager.notepadScreen.exitToMenu = () => {
+            this.phoneState.transitionTo(PhoneStates.MENU);
+            const wallpaper = this.assetLoader.getImage('wallpaper');
+            this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+          };
+          return;
+        } else if (name.includes('clock')) {
+          this.phoneState.transitionTo(PhoneStates.CLOCK);
+          this.screenManager.renderClock();
+          return;
         }
       }
     } else if (key === 'RSK' || key === 'END') {
@@ -384,6 +401,21 @@ class BootController {
   handleContactsButton(key) {
     // Delegate to screen; it handles list/view/edit/multi-tap flows and calls callbacks
     this.screenManager.contactsHandleKey(key);
+  }
+
+  /** Notepad app controls */
+  handleNotepadButton(key) {
+    this.screenManager.notepadHandleKey(key);
+  }
+
+  /** Clock app controls */
+  handleClockButton(key) {
+    if (key === 'RSK' || key === 'END') {
+      this.phoneState.transitionTo(PhoneStates.MENU);
+      const wallpaper = this.assetLoader.getImage('wallpaper');
+      this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+    }
+    // Future: LSK to open Alarms, etc.
   }
 
   /**

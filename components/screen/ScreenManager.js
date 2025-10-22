@@ -18,6 +18,8 @@ class ScreenManager {
     this.galleryScreen = new GalleryScreen(this.screenElement);
     this.callsScreen = new CallsScreen(this.screenElement);
     this.contactsScreen = new ContactsScreen(this.screenElement);
+    this.notepadScreen = new NotepadScreen(this.screenElement);
+    this.clockScreen = new ClockScreen(this.screenElement);
   }
 
   /**
@@ -191,6 +193,20 @@ class ScreenManager {
   }
   contactsHandleKey(key) {
     this.contactsScreen.handleKey(key);
+  }
+
+  // Notepad
+  renderNotepadList() {
+    this.currentScreen = 'notepad';
+    this.notepadScreen.exitToMenu = () => {};
+    this.notepadScreen.renderList();
+  }
+  notepadHandleKey(key) { this.notepadScreen.handleKey(key); }
+
+  // Clock
+  renderClock() {
+    this.currentScreen = 'clock';
+    this.clockScreen.render();
   }
 
   /**
