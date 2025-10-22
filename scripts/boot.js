@@ -169,6 +169,8 @@ class BootController {
       this.handleNotepadButton(key);
     } else if (currentState === PhoneStates.CLOCK) {
       this.handleClockButton(key);
+    } else if (currentState === PhoneStates.MEDIA) {
+      this.handleMediaButton(key);
     }
   }
 
@@ -260,6 +262,10 @@ class BootController {
       this.phoneState.transitionTo(PhoneStates.MENU);
       const wallpaper = this.assetLoader.getImage('wallpaper');
       this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+    } else if (key === 'RSK') {
+      // Music quick access
+      this.phoneState.transitionTo(PhoneStates.MEDIA);
+      this.screenManager.renderMediaMusic();
     }
   }
 
@@ -320,18 +326,9 @@ class BootController {
             }
           };
           return;
-        } else if (name.includes('note')) {
-          this.phoneState.transitionTo(PhoneStates.NOTEPAD);
-          this.screenManager.renderNotepadList();
-          this.screenManager.notepadScreen.exitToMenu = () => {
-            this.phoneState.transitionTo(PhoneStates.MENU);
-            const wallpaper = this.assetLoader.getImage('wallpaper');
-            this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
-          };
-          return;
-        } else if (name.includes('clock')) {
-          this.phoneState.transitionTo(PhoneStates.CLOCK);
-          this.screenManager.renderClock();
+        } else if (name.includes('media')) {
+          this.phoneState.transitionTo(PhoneStates.MEDIA);
+          this.screenManager.renderMediaRoot();
           return;
         }
       }
@@ -418,6 +415,26 @@ class BootController {
       };
     }
     this.screenManager.clockHandleKey(key);
+  }
+
+  /** Media controls */
+  handleMediaButton(key) {
+    // Global back
+    if (key === 'RSK') { this.screenManager.mediaBack(); return; }
+    const mode = this.screenManager.mediaGetMode ? this.screenManager.mediaGetMode() : '';
+    if (mode === 'videoplay') {
+      if (key === 'UP') this.screenManager.mediaVolume(+0.1);
+      else if (key === 'DOWN') this.screenManager.mediaVolume(-0.1);
+      else if (key === 'LEFT') this.screenManager.mediaSeek(-5);
+      else if (key === 'RIGHT') this.screenManager.mediaSeek(+5);
+      else if (key === 'OK') this.screenManager.mediaTogglePlay();
+      else if (key === 'LSK') this.screenManager.mediaBack();
+      return;
+    }
+    // In root/lists: navigate and actions
+    if (key === 'UP') this.screenManager.mediaNavigate('up');
+    else if (key === 'DOWN') this.screenManager.mediaNavigate('down');
+    else if (key === 'LSK' || key === 'OK' || key === 'CALL') this.screenManager.mediaOpen();
   }
 
   /**

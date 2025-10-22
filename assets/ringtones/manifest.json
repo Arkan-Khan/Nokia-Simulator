@@ -1,0 +1,7 @@
+[
+  { "title": "Coconut",    "file": "assets/ringtones/coconut.mp3",    "type": "ringtone" },
+  { "title": "Destiny",    "file": "assets/ringtones/Destiny.mp3",    "type": "ringtone" },
+  { "title": "Espionage",  "file": "assets/ringtones/Espionage.mp3",  "type": "ringtone" },
+  { "title": "Nokia Tune", "file": "assets/ringtones/nokia_tune.mp3", "type": "ringtone" },
+  { "title": "Soulful",    "file": "assets/ringtones/Soulful.mp3",    "type": "ringtone" }
+]

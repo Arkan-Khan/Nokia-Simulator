@@ -19,6 +19,7 @@ const PhoneStates = Object.freeze({
   CONTACTS: 'CONTACTS',
   NOTEPAD: 'NOTEPAD',
   CLOCK: 'CLOCK',
+  MEDIA: 'MEDIA',
   POWERING_OFF: 'POWERING_OFF'
 });
 
@@ -31,8 +32,8 @@ class PhoneState {
     this.transitions = {
       [PhoneStates.POWERED_OFF]: [PhoneStates.BOOTING],
       [PhoneStates.BOOTING]: [PhoneStates.HOME_SCREEN],
-      [PhoneStates.HOME_SCREEN]: [PhoneStates.MENU, PhoneStates.DIALER, PhoneStates.CALCULATOR, PhoneStates.CAMERA, PhoneStates.GALLERY, PhoneStates.CALLS, PhoneStates.CONTACTS, PhoneStates.NOTEPAD, PhoneStates.CLOCK, PhoneStates.POWERING_OFF],
-      [PhoneStates.MENU]: [PhoneStates.HOME_SCREEN, PhoneStates.CALCULATOR, PhoneStates.CAMERA, PhoneStates.GALLERY, PhoneStates.CALLS, PhoneStates.CONTACTS, PhoneStates.NOTEPAD, PhoneStates.CLOCK],
+      [PhoneStates.HOME_SCREEN]: [PhoneStates.MENU, PhoneStates.DIALER, PhoneStates.CALCULATOR, PhoneStates.CAMERA, PhoneStates.GALLERY, PhoneStates.CALLS, PhoneStates.CONTACTS, PhoneStates.NOTEPAD, PhoneStates.CLOCK, PhoneStates.MEDIA, PhoneStates.POWERING_OFF],
+      [PhoneStates.MENU]: [PhoneStates.HOME_SCREEN, PhoneStates.CALCULATOR, PhoneStates.CAMERA, PhoneStates.GALLERY, PhoneStates.CALLS, PhoneStates.CONTACTS, PhoneStates.NOTEPAD, PhoneStates.CLOCK, PhoneStates.MEDIA],
       [PhoneStates.DIALER]: [PhoneStates.HOME_SCREEN, PhoneStates.CALLING],
       [PhoneStates.CALLING]: [PhoneStates.DIALER, PhoneStates.HOME_SCREEN],
       [PhoneStates.CALCULATOR]: [PhoneStates.MENU, PhoneStates.HOME_SCREEN],
@@ -42,6 +43,7 @@ class PhoneState {
       [PhoneStates.CONTACTS]: [PhoneStates.MENU, PhoneStates.HOME_SCREEN],
       [PhoneStates.NOTEPAD]: [PhoneStates.MENU, PhoneStates.HOME_SCREEN],
       [PhoneStates.CLOCK]: [PhoneStates.MENU, PhoneStates.HOME_SCREEN],
+      [PhoneStates.MEDIA]: [PhoneStates.MENU, PhoneStates.HOME_SCREEN],
       [PhoneStates.POWERING_OFF]: [PhoneStates.POWERED_OFF]
     };
   }
