@@ -16,6 +16,10 @@ class ScreenManager {
     this.calculatorScreen = new CalculatorScreen(this.screenElement);
     this.cameraScreen = new CameraScreen(this.screenElement);
     this.galleryScreen = new GalleryScreen(this.screenElement);
+    this.callsScreen = new CallsScreen(this.screenElement);
+    this.contactsScreen = new ContactsScreen(this.screenElement);
+    this.notepadScreen = new NotepadScreen(this.screenElement);
+    this.clockScreen = new ClockScreen(this.screenElement);
   }
 
   /**
@@ -159,6 +163,53 @@ class ScreenManager {
   galleryOpen() {
     this.galleryScreen.renderImage();
   }
+
+  // Calls
+  renderCallsList() {
+    this.currentScreen = 'calls';
+    this.callsScreen.renderList();
+  }
+  callsNavigate(dir) {
+    this.callsScreen.navigate(dir);
+  }
+  callsDelete() {
+    this.callsScreen.deleteFocused();
+  }
+  callsGetFocusedNumber() {
+    return this.callsScreen.getFocusedNumber();
+  }
+
+  // Contacts
+  renderContactsList() {
+    this.currentScreen = 'contacts';
+    // Provide callbacks for integration
+    this.contactsScreen.exitToMenu = () => {
+      // placeholder; boot.js will handle transitions
+    };
+    this.contactsScreen.callFocused = () => {
+      // placeholder; boot.js will handle calls
+    };
+    this.contactsScreen.renderList();
+  }
+  contactsHandleKey(key) {
+    this.contactsScreen.handleKey(key);
+  }
+
+  // Notepad
+  renderNotepadList() {
+    this.currentScreen = 'notepad';
+    this.notepadScreen.exitToMenu = () => {};
+    this.notepadScreen.renderList();
+  }
+  notepadHandleKey(key) { this.notepadScreen.handleKey(key); }
+
+  // Clock
+  renderClock() {
+    this.currentScreen = 'clock';
+    this.clockScreen.exitToMenu = () => {};
+    this.clockScreen.render();
+  }
+  clockHandleKey(key) { this.clockScreen.handleKey(key); }
 
   /**
    * Render power-off animation

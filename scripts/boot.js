@@ -161,6 +161,14 @@ class BootController {
       this.handleCameraButton(key);
     } else if (currentState === PhoneStates.GALLERY) {
       this.handleGalleryButton(key);
+    } else if (currentState === PhoneStates.CALLS) {
+      this.handleCallsButton(key);
+    } else if (currentState === PhoneStates.CONTACTS) {
+      this.handleContactsButton(key);
+    } else if (currentState === PhoneStates.NOTEPAD) {
+      this.handleNotepadButton(key);
+    } else if (currentState === PhoneStates.CLOCK) {
+      this.handleClockButton(key);
     }
   }
 
@@ -286,6 +294,45 @@ class BootController {
           this.phoneState.transitionTo(PhoneStates.GALLERY);
           this.screenManager.renderGalleryList();
           return;
+        } else if (name.includes('call')) {
+          this.phoneState.transitionTo(PhoneStates.CALLS);
+          this.screenManager.renderCallsList();
+          return;
+        } else if (name.includes('contact')) {
+          this.phoneState.transitionTo(PhoneStates.CONTACTS);
+          this.screenManager.renderContactsList();
+          // Wire callbacks for exit and call
+          this.screenManager.contactsScreen.exitToMenu = () => {
+            this.phoneState.transitionTo(PhoneStates.MENU);
+            const wallpaper = this.assetLoader.getImage('wallpaper');
+            this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+          };
+          this.screenManager.contactsScreen.callFocused = () => {
+            const filtered = this.screenManager.contactsScreen.getFiltered ? this.screenManager.contactsScreen.getFiltered() : [];
+            const idx = this.screenManager.contactsScreen.listIndex || 0;
+            const c = filtered[idx];
+            const num = c?.number || '';
+            if (num) {
+              try { CallLogStore.add({ number: num, type: 'outgoing' }); } catch {}
+              this.phoneState.transitionTo(PhoneStates.CALLING);
+              this.screenManager.dialerScreen && this.screenManager.dialerScreen.setNumber && this.screenManager.dialerScreen.setNumber(num);
+              this.renderCallingScreen();
+            }
+          };
+          return;
+        } else if (name.includes('note')) {
+          this.phoneState.transitionTo(PhoneStates.NOTEPAD);
+          this.screenManager.renderNotepadList();
+          this.screenManager.notepadScreen.exitToMenu = () => {
+            this.phoneState.transitionTo(PhoneStates.MENU);
+            const wallpaper = this.assetLoader.getImage('wallpaper');
+            this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+          };
+          return;
+        } else if (name.includes('clock')) {
+          this.phoneState.transitionTo(PhoneStates.CLOCK);
+          this.screenManager.renderClock();
+          return;
         }
       }
     } else if (key === 'RSK' || key === 'END') {
@@ -305,6 +352,8 @@ class BootController {
       this.screenManager.addDialerDigit(key);
     } else if (key === 'LSK' || key === 'CALL') {
       // Call button - start calling
+      const number = this.screenManager.getDialedNumber();
+      try { CallLogStore.add({ number, type: 'outgoing' }); } catch {}
       this.phoneState.transitionTo(PhoneStates.CALLING);
       this.renderCallingScreen();
     } else if (key === 'RSK' || key === 'END') {
@@ -325,6 +374,50 @@ class BootController {
       this.phoneState.transitionTo(PhoneStates.HOME_SCREEN);
       this.renderHomeScreen();
     }
+  }
+
+  /** Calls app controls */
+  handleCallsButton(key) {
+    if (key === 'UP') this.screenManager.callsNavigate('up');
+    else if (key === 'DOWN') this.screenManager.callsNavigate('down');
+    else if (key === 'LSK') this.screenManager.callsDelete();
+    else if (key === 'OK' || key === 'CALL') {
+      const num = this.screenManager.callsGetFocusedNumber();
+      if (num) {
+        try { CallLogStore.add({ number: num, type: 'outgoing' }); } catch {}
+        this.phoneState.transitionTo(PhoneStates.CALLING);
+        // Seed dialer number for display
+        this.screenManager.dialerScreen && this.screenManager.dialerScreen.setNumber && this.screenManager.dialerScreen.setNumber(num);
+        this.renderCallingScreen();
+      }
+    } else if (key === 'RSK' || key === 'END') {
+      this.phoneState.transitionTo(PhoneStates.MENU);
+      const wallpaper = this.assetLoader.getImage('wallpaper');
+      this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+    }
+  }
+
+  /** Contacts app controls */
+  handleContactsButton(key) {
+    // Delegate to screen; it handles list/view/edit/multi-tap flows and calls callbacks
+    this.screenManager.contactsHandleKey(key);
+  }
+
+  /** Notepad app controls */
+  handleNotepadButton(key) {
+    this.screenManager.notepadHandleKey(key);
+  }
+
+  /** Clock app controls */
+  handleClockButton(key) {
+    if (this.screenManager.clockScreen) {
+      this.screenManager.clockScreen.exitToMenu = () => {
+        this.phoneState.transitionTo(PhoneStates.MENU);
+        const wallpaper = this.assetLoader.getImage('wallpaper');
+        this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+      };
+    }
+    this.screenManager.clockHandleKey(key);
   }
 
   /**
