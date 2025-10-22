@@ -431,10 +431,19 @@ class BootController {
       else if (key === 'LSK') this.screenManager.mediaBack();
       return;
     }
+    if (mode === 'musicplay') {
+      if (key === 'UP') this.screenManager.mediaVolume(+0.1);
+      else if (key === 'DOWN') this.screenManager.mediaVolume(-0.1);
+      else if (key === 'LEFT') this.screenManager.mediaScreen.musicPrev && this.screenManager.mediaScreen.musicPrev();
+      else if (key === 'RIGHT') this.screenManager.mediaScreen.musicNext && this.screenManager.mediaScreen.musicNext();
+      else if (key === 'OK') this.screenManager.mediaTogglePlay();
+      else if (key === 'LSK') this.screenManager.mediaBack();
+      return;
+    }
     // In root/lists: navigate and actions
     if (key === 'UP') this.screenManager.mediaNavigate('up');
     else if (key === 'DOWN') this.screenManager.mediaNavigate('down');
-    else if (key === 'LSK' || key === 'OK' || key === 'CALL') this.screenManager.mediaOpen();
+    else if (key === 'OK' || key === 'CALL' || key === 'LSK') this.screenManager.mediaOpen();
   }
 
   /**
