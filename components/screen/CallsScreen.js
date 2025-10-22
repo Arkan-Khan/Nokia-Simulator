@@ -6,10 +6,17 @@ class CallsScreen {
 
   renderList() {
     const items = CallLogStore.loadAll();
+    const contacts = (typeof ContactsStore !== 'undefined') ? ContactsStore.loadAll() : [];
+    const nameForNumber = (num) => {
+      const n = String(num || '').replace(/\s+/g,'');
+      const c = contacts.find(c => String(c.number || '').replace(/\s+/g,'') === n);
+      return c ? c.name : null;
+    };
     const rows = items.map((c, i) => {
       const d = new Date(c.timestamp);
       const focused = i === this.listIndex;
-      const label = c.number || 'Unknown';
+      const resolvedName = nameForNumber(c.number);
+      const label = resolvedName || c.number || 'Unknown';
       const typeIcon = c.type === 'missed' ? '❗' : (c.type === 'incoming' ? '⬇️' : '⬆️');
       const day = String(d.getDate()).padStart(2,'0');
       const mon = String(d.getMonth()+1).padStart(2,'0');

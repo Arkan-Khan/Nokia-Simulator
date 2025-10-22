@@ -163,6 +163,8 @@ class BootController {
       this.handleGalleryButton(key);
     } else if (currentState === PhoneStates.CALLS) {
       this.handleCallsButton(key);
+    } else if (currentState === PhoneStates.CONTACTS) {
+      this.handleContactsButton(key);
     }
   }
 
@@ -292,6 +294,28 @@ class BootController {
           this.phoneState.transitionTo(PhoneStates.CALLS);
           this.screenManager.renderCallsList();
           return;
+        } else if (name.includes('contact')) {
+          this.phoneState.transitionTo(PhoneStates.CONTACTS);
+          this.screenManager.renderContactsList();
+          // Wire callbacks for exit and call
+          this.screenManager.contactsScreen.exitToMenu = () => {
+            this.phoneState.transitionTo(PhoneStates.MENU);
+            const wallpaper = this.assetLoader.getImage('wallpaper');
+            this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+          };
+          this.screenManager.contactsScreen.callFocused = () => {
+            const filtered = this.screenManager.contactsScreen.getFiltered ? this.screenManager.contactsScreen.getFiltered() : [];
+            const idx = this.screenManager.contactsScreen.listIndex || 0;
+            const c = filtered[idx];
+            const num = c?.number || '';
+            if (num) {
+              try { CallLogStore.add({ number: num, type: 'outgoing' }); } catch {}
+              this.phoneState.transitionTo(PhoneStates.CALLING);
+              this.screenManager.dialerScreen && this.screenManager.dialerScreen.setNumber && this.screenManager.dialerScreen.setNumber(num);
+              this.renderCallingScreen();
+            }
+          };
+          return;
         }
       }
     } else if (key === 'RSK' || key === 'END') {
@@ -354,6 +378,12 @@ class BootController {
       const wallpaper = this.assetLoader.getImage('wallpaper');
       this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
     }
+  }
+
+  /** Contacts app controls */
+  handleContactsButton(key) {
+    // Delegate to screen; it handles list/view/edit/multi-tap flows and calls callbacks
+    this.screenManager.contactsHandleKey(key);
   }
 
   /**

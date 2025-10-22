@@ -17,6 +17,7 @@ class ScreenManager {
     this.cameraScreen = new CameraScreen(this.screenElement);
     this.galleryScreen = new GalleryScreen(this.screenElement);
     this.callsScreen = new CallsScreen(this.screenElement);
+    this.contactsScreen = new ContactsScreen(this.screenElement);
   }
 
   /**
@@ -174,6 +175,22 @@ class ScreenManager {
   }
   callsGetFocusedNumber() {
     return this.callsScreen.getFocusedNumber();
+  }
+
+  // Contacts
+  renderContactsList() {
+    this.currentScreen = 'contacts';
+    // Provide callbacks for integration
+    this.contactsScreen.exitToMenu = () => {
+      // placeholder; boot.js will handle transitions
+    };
+    this.contactsScreen.callFocused = () => {
+      // placeholder; boot.js will handle calls
+    };
+    this.contactsScreen.renderList();
+  }
+  contactsHandleKey(key) {
+    this.contactsScreen.handleKey(key);
   }
 
   /**
