@@ -410,12 +410,14 @@ class BootController {
 
   /** Clock app controls */
   handleClockButton(key) {
-    if (key === 'RSK' || key === 'END') {
-      this.phoneState.transitionTo(PhoneStates.MENU);
-      const wallpaper = this.assetLoader.getImage('wallpaper');
-      this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+    if (this.screenManager.clockScreen) {
+      this.screenManager.clockScreen.exitToMenu = () => {
+        this.phoneState.transitionTo(PhoneStates.MENU);
+        const wallpaper = this.assetLoader.getImage('wallpaper');
+        this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+      };
     }
-    // Future: LSK to open Alarms, etc.
+    this.screenManager.clockHandleKey(key);
   }
 
   /**

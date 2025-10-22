@@ -206,8 +206,10 @@ class ScreenManager {
   // Clock
   renderClock() {
     this.currentScreen = 'clock';
+    this.clockScreen.exitToMenu = () => {};
     this.clockScreen.render();
   }
+  clockHandleKey(key) { this.clockScreen.handleKey(key); }
 
   /**
    * Render power-off animation

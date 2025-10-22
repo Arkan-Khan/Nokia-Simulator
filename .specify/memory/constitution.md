@@ -187,17 +187,19 @@ For day-to-day development decisions not explicitly covered by this constitution
 - Gallery app: local photo store, list view with pink focus + auto‑scroll, Delete/Open/Back, fullscreen viewer
 - Calls app: recent calls list, dd/mm/yy + time, soft keys (Delete/Call/Back), logs saved on call
 - Contacts app: list/filter with multi‑tap search (# backspace, * clear), view, add/edit with classic multi‑tap
+- Notepad app: multi‑tap editor, list, edit/delete
+- Clock app: time/date view, Alarms (new/edit/toggle/delete), Stopwatch, Timer
 
 ### 🚧 IN PROGRESS
 
 - UI polish and cross‑browser validation
 - Notepad app: multi‑tap editor, list, edit/delete
-- Clock app: main time/date with scaffolding for Alarms/Stopwatch/Timer
+- Clock app: main time/date, Alarms/Stopwatch/Timer scaffolding
 
 ### 📋 PLANNED (next)
 
 - FreeJ2ME‑Web integration and app launcher plumbing
-- Media Player (audio playback UI, progress, soft‑keys)
+- Media Player: folders (Ringtones, Videos), dynamic lists, ringtone autoplay on focus, video playback controls
 - Settings: profiles, ringtone preview, brightness mock
 - Performance: lazy image decode, memory caps for photos, audio recycling
 - PWA/offline caching and basic tests
