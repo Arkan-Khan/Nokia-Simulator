@@ -20,6 +20,7 @@ class ScreenManager {
     this.contactsScreen = new ContactsScreen(this.screenElement);
     this.notepadScreen = new NotepadScreen(this.screenElement);
     this.clockScreen = new ClockScreen(this.screenElement);
+    this.mediaScreen = new MediaPlayerScreen(this.screenElement);
   }
 
   /**
@@ -219,6 +220,19 @@ class ScreenManager {
     this.currentScreen = 'poweroff';
     return await this.powerOffScreen.playFadeOut();
   }
+
+  // Media
+  renderMediaRoot() { this.currentScreen = 'media'; this.mediaScreen.renderRoot(); }
+  renderMediaRingtones() { this.currentScreen = 'media'; return this.mediaScreen.renderRingtones(); }
+  renderMediaMusic() { this.currentScreen = 'media'; return this.mediaScreen.renderMusic(); }
+  renderMediaVideos() { this.currentScreen = 'media'; return this.mediaScreen.renderVideos(); }
+  mediaNavigate(dir) { this.mediaScreen.navigate(dir); }
+  mediaOpen() { this.mediaScreen.openFocused(); }
+  mediaBack() { this.mediaScreen.back(); }
+  mediaTogglePlay() { this.mediaScreen.togglePlayPause(); }
+  mediaVolume(delta) { this.mediaScreen.adjustVolume(delta); }
+  mediaSeek(sec) { this.mediaScreen.seek(sec); }
+  mediaGetMode() { return this.mediaScreen.mode; }
 }
 
 // Export for use in other modules

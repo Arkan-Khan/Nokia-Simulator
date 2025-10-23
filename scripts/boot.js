@@ -169,6 +169,8 @@ class BootController {
       this.handleNotepadButton(key);
     } else if (currentState === PhoneStates.CLOCK) {
       this.handleClockButton(key);
+    } else if (currentState === PhoneStates.MEDIA) {
+      this.handleMediaButton(key);
     }
   }
 
@@ -260,6 +262,10 @@ class BootController {
       this.phoneState.transitionTo(PhoneStates.MENU);
       const wallpaper = this.assetLoader.getImage('wallpaper');
       this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+    } else if (key === 'RSK') {
+      // Music quick access
+      this.phoneState.transitionTo(PhoneStates.MEDIA);
+      this.screenManager.renderMediaMusic();
     }
   }
 
@@ -320,9 +326,14 @@ class BootController {
             }
           };
           return;
+        } else if (name.includes('media')) {
+          this.phoneState.transitionTo(PhoneStates.MEDIA);
+          this.screenManager.renderMediaRoot();
+          return;
         } else if (name.includes('note')) {
           this.phoneState.transitionTo(PhoneStates.NOTEPAD);
           this.screenManager.renderNotepadList();
+          // Ensure RSK exits to menu
           this.screenManager.notepadScreen.exitToMenu = () => {
             this.phoneState.transitionTo(PhoneStates.MENU);
             const wallpaper = this.assetLoader.getImage('wallpaper');
@@ -418,6 +429,44 @@ class BootController {
       };
     }
     this.screenManager.clockHandleKey(key);
+  }
+
+  /** Media controls */
+  handleMediaButton(key) {
+    // Back behavior depends on sub-mode
+    const mode = this.screenManager.mediaGetMode ? this.screenManager.mediaGetMode() : '';
+    if (key === 'RSK') {
+      if (mode === 'root') {
+        this.phoneState.transitionTo(PhoneStates.MENU);
+        const wallpaper = this.assetLoader.getImage('wallpaper');
+        this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+      } else {
+        this.screenManager.mediaBack();
+      }
+      return;
+    }
+    if (mode === 'videoplay') {
+      if (key === 'UP') this.screenManager.mediaVolume(+0.1);
+      else if (key === 'DOWN') this.screenManager.mediaVolume(-0.1);
+      else if (key === 'LEFT') this.screenManager.mediaSeek(-5);
+      else if (key === 'RIGHT') this.screenManager.mediaSeek(+5);
+      else if (key === 'OK') this.screenManager.mediaTogglePlay();
+      else if (key === 'LSK') this.screenManager.mediaBack();
+      return;
+    }
+    if (mode === 'musicplay') {
+      if (key === 'UP') this.screenManager.mediaVolume(+0.1);
+      else if (key === 'DOWN') this.screenManager.mediaVolume(-0.1);
+      else if (key === 'LEFT') this.screenManager.mediaScreen.musicPrev && this.screenManager.mediaScreen.musicPrev();
+      else if (key === 'RIGHT') this.screenManager.mediaScreen.musicNext && this.screenManager.mediaScreen.musicNext();
+      else if (key === 'OK') this.screenManager.mediaTogglePlay();
+      else if (key === 'LSK') this.screenManager.mediaBack();
+      return;
+    }
+    // In root/lists: navigate and actions
+    if (key === 'UP') this.screenManager.mediaNavigate('up');
+    else if (key === 'DOWN') this.screenManager.mediaNavigate('down');
+    else if (key === 'OK' || key === 'CALL' || key === 'LSK') this.screenManager.mediaOpen();
   }
 
   /**
