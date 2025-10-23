@@ -33,9 +33,9 @@ As a user, I can open Media → Music and play tracks with play/pause and volume
 
 **Acceptance Scenarios**:
 
-1. Given Music manifest exists, When Music opens, Then first track auto-plays and soft keys reflect controls.
-2. Given a track is playing, When I press OK, Then playback toggles immediately; volume responds to UP/DOWN.
-3. Given I exit Music, Then playback stops; re-enter resumes from start (no background playing).
+1. Given Music list opens, When I press OK on a track, Then a control screen opens with title centered, vertical volume bar, and a bottom progress bar.
+2. Given the control screen, When I press LEFT/RIGHT, Then previous/next track plays; OK toggles play/pause; UP/DOWN changes volume and the volume UI updates.
+3. Given I press RSK on the control screen or list, Then I return to the previous screen (list → Media root, control → list) and playback stops when exiting to root.
 
 ---
 
@@ -67,7 +67,7 @@ As a user, I can open Media → Videos, select a video, and the phone rotates to
 
 - FR-001: Media root MUST show folders: Ringtones, Music, Videos with folder icons.
 - FR-002: Ringtones list MUST load from `assets/ringtones/manifest.json` only; first item auto-plays; focus changes play focused with 150ms debounce; stop on exit.
-- FR-003: Music list MUST load from `assets/music/manifest.json` only; first item auto-plays; OK toggles play/pause; UP/DOWN adjust volume; stop on exit.
+- FR-003: Music list MUST load from `assets/music/manifest.json` only; no autoplay on focus; OK opens control screen with title, vertical volume bar, and bottom progress; LEFT/RIGHT prev/next; OK play/pause; UP/DOWN volume; RSK back.
 - FR-004: Videos list MUST load from `assets/videos/manifest.json` only; selecting an item enters landscape playback with key remapping (OK play/pause, LEFT/RIGHT seek ±5s, UP/DOWN volume); LSK returns to list; RSK hidden.
 - FR-005: Home screen RSK MUST open Music directly.
 - FR-006: Media playback MUST not continue when navigating away from Media screens.

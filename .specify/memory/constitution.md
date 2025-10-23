@@ -174,7 +174,7 @@ For day-to-day development decisions not explicitly covered by this constitution
 
 ## Project Status & Achievements
 
-### ✅ COMPLETED (v1.1.0)
+### ✅ COMPLETED (v1.2.0)
 
 - Core OS: Boot sequence (video+audio), long‑press power, power‑off fade
 - State persistence via localStorage
@@ -187,19 +187,18 @@ For day-to-day development decisions not explicitly covered by this constitution
 - Gallery app: local photo store, list view with pink focus + auto‑scroll, Delete/Open/Back, fullscreen viewer
 - Calls app: recent calls list, dd/mm/yy + time, soft keys (Delete/Call/Back), logs saved on call
 - Contacts app: list/filter with multi‑tap search (# backspace, * clear), view, add/edit with classic multi‑tap
-- Notepad app: multi‑tap editor, list, edit/delete
-- Clock app: time/date view, Alarms (new/edit/toggle/delete), Stopwatch, Timer
+- Notepad app: multi‑tap editor, list, edit/delete (RSK back to menu)
+- Clock app: time/date view, Alarms (new/edit/toggle/delete), Stopwatch, Timer (END/RSK exit)
+- Media Player: root folders (Ringtones, Music, Videos); Ringtones focus‑autoplay; Music list + control screen (title center, vertical volume bar, bottom progress, prev/next with LEFT/RIGHT, OK play/pause, RSK back); Videos landscape playback with remapped keys
 
 ### 🚧 IN PROGRESS
 
 - UI polish and cross‑browser validation
-- Notepad app: multi‑tap editor, list, edit/delete
-- Clock app: main time/date, Alarms/Stopwatch/Timer scaffolding
 
 ### 📋 PLANNED (next)
 
 - FreeJ2ME‑Web integration and app launcher plumbing
-- Media Player: folders (Ringtones, Videos), dynamic lists, ringtone autoplay on focus, video playback controls
+- Application icon launcher for JAR games (Games menu)
 - Settings: profiles, ringtone preview, brightness mock
 - Performance: lazy image decode, memory caps for photos, audio recycling
 - PWA/offline caching and basic tests
