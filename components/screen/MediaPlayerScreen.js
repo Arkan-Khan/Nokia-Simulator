@@ -11,8 +11,9 @@ class MediaPlayerScreen {
   }
 
   renderRoot() {
+    this.cleanup();
     this.mode = 'root';
-    this.index = 0;
+    if (this.index < 0 || this.index > 2) this.index = 0;
     const rows = ['Ringtones', 'Music', 'Videos'].map((name, i) => {
       const focused = i === this.index;
       return `<div style="padding:6px 8px;background:${focused?'rgba(255,100,150,0.4)':'transparent'};border-radius:6px;margin:2px 6px;display:flex;gap:6px;align-items:center;">
@@ -29,7 +30,7 @@ class MediaPlayerScreen {
           <div style="position:absolute;top:0;left:0;right:0;">${rows}</div>
         </div>
         <div style="position:absolute;bottom:0;left:0;right:0;height:24px;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:9px;font-weight:bold;">
-          <div>Open</div><div>Select</div><div>Back</div>
+          <div></div><div>Select</div><div>Back</div>
         </div>
       </div>`;
   }
@@ -146,7 +147,7 @@ class MediaPlayerScreen {
           <video id="mp-video" src="${src}" style="width:320px;height:240px;background:#000;" playsinline></video>
         </div>
         <div style="position:absolute;bottom:0;left:0;right:0;height:24px;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:9px;font-weight:bold;">
-          <div>Back</div><div>Play/Pause</div><div></div>
+          <div></div><div>Play/Pause</div><div>Back</div>
         </div>
       </div>`;
     this.video = this.screenElement.querySelector('#mp-video');
@@ -171,15 +172,36 @@ class MediaPlayerScreen {
     const cur = this.audio ? Math.floor(this.audio.currentTime || 0) : 0;
     const dur = this.audio && isFinite(this.audio.duration) ? Math.floor(this.audio.duration) : 0;
     const fmt = (s)=> `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+    const pct = dur ? Math.min(1, cur / dur) : 0;
+    const vol = this.audio ? Math.round((this.audio.volume || 0)*10) : 8;
+
+    // Vertical volume bars (right side, sized to fit between title and soft keys)
+    const volBars = Array.from({length:10}).map((_,i)=>{
+      const active = i < vol;
+      return `<span style=\"display:block;width:4px;height:6px;margin:1px 0;background:${active?'#ff6a6a':'#555'};\"></span>`;
+    }).reverse().join('');
+
     this.screenElement.innerHTML = `
-      <div class="screen-content" style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;">
-        <div style="text-align:center;">
-          <div style="font-size:12px;margin-bottom:6px;">${it.title}</div>
-          <div style="font-size:24px;font-weight:bold;">${fmt(cur)} / ${dur?fmt(dur):'--:--'}</div>
-        </div>
-        <div style="position:absolute;bottom:0;left:0;right:0;height:24px;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:9px;font-weight:bold;">
-          <div>Back</div><div>Play/Pause</div><div></div>
-        </div>
+      <div class=\"screen-content\" style=\"background:url('assets/wallpapers/Wallpaper1.jpg') center/cover no-repeat;color:#fff;\">\
+        <div style=\"position:absolute;top:0;left:0;right:0;height:16px;background:rgba(0,0,0,0.35);display:flex;justify-content:space-between;align-items:center;padding:0 6px;font-size:9px;font-weight:bold;\">\
+          <span>Music player</span><span>${new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})}</span>\
+        </div>\
+        <div style=\"position:absolute;top:34px;left:0;right:0;text-align:center;font-size:12px;font-weight:bold;\">${it.title}</div>\
+        <!-- Vertical volume at right, between title and soft keys -->\
+        <div style=\"position:absolute;top:50px;right:6px;bottom:52px;width:6px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;\">${volBars}</div>\
+        <!-- Progress bar slightly above soft keys -->\
+        <div style=\"position:absolute;bottom:36px;left:8px;right:8px;height:12px;\">\
+          <div style=\"height:4px;background:#1572b6;border-radius:2px;position:relative;overflow:hidden;\">\
+            <div style=\"position:absolute;left:0;top:0;bottom:0;width:${Math.round(pct*100)}%;background:#48c0ff;\"></div>\
+          </div>\
+          <div style=\"display:flex;justify-content:space-between;font-size:9px;margin-top:2px;\">\
+            <span>${fmt(cur)}</span>\
+            <span>${dur?fmt(dur):'--:--'}</span>\
+          </div>\
+        </div>\
+        <div style=\"position:absolute;bottom:0;left:0;right:0;height:24px;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:9px;font-weight:bold;\">\
+          <div></div><div>Play/Pause</div><div>Back</div>\
+        </div>\
       </div>`;
   }
 

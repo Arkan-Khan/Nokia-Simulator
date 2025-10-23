@@ -330,6 +330,20 @@ class BootController {
           this.phoneState.transitionTo(PhoneStates.MEDIA);
           this.screenManager.renderMediaRoot();
           return;
+        } else if (name.includes('note')) {
+          this.phoneState.transitionTo(PhoneStates.NOTEPAD);
+          this.screenManager.renderNotepadList();
+          // Ensure RSK exits to menu
+          this.screenManager.notepadScreen.exitToMenu = () => {
+            this.phoneState.transitionTo(PhoneStates.MENU);
+            const wallpaper = this.assetLoader.getImage('wallpaper');
+            this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+          };
+          return;
+        } else if (name.includes('clock')) {
+          this.phoneState.transitionTo(PhoneStates.CLOCK);
+          this.screenManager.renderClock();
+          return;
         }
       }
     } else if (key === 'RSK' || key === 'END') {
@@ -419,9 +433,18 @@ class BootController {
 
   /** Media controls */
   handleMediaButton(key) {
-    // Global back
-    if (key === 'RSK') { this.screenManager.mediaBack(); return; }
+    // Back behavior depends on sub-mode
     const mode = this.screenManager.mediaGetMode ? this.screenManager.mediaGetMode() : '';
+    if (key === 'RSK') {
+      if (mode === 'root') {
+        this.phoneState.transitionTo(PhoneStates.MENU);
+        const wallpaper = this.assetLoader.getImage('wallpaper');
+        this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+      } else {
+        this.screenManager.mediaBack();
+      }
+      return;
+    }
     if (mode === 'videoplay') {
       if (key === 'UP') this.screenManager.mediaVolume(+0.1);
       else if (key === 'DOWN') this.screenManager.mediaVolume(-0.1);
