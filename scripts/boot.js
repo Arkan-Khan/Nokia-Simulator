@@ -171,6 +171,8 @@ class BootController {
       this.handleClockButton(key);
     } else if (currentState === PhoneStates.MEDIA) {
       this.handleMediaButton(key);
+    } else if (currentState === PhoneStates.GAMES) {
+      this.handleGamesButton(key);
     }
   }
 
@@ -330,6 +332,10 @@ class BootController {
           this.phoneState.transitionTo(PhoneStates.MEDIA);
           this.screenManager.renderMediaRoot();
           return;
+        } else if (name.includes('game') || name.includes('application')) {
+          this.phoneState.transitionTo(PhoneStates.GAMES);
+          this.screenManager.renderGamesScreen();
+          return;
         } else if (name.includes('note')) {
           this.phoneState.transitionTo(PhoneStates.NOTEPAD);
           this.screenManager.renderNotepadList();
@@ -467,6 +473,31 @@ class BootController {
     if (key === 'UP') this.screenManager.mediaNavigate('up');
     else if (key === 'DOWN') this.screenManager.mediaNavigate('down');
     else if (key === 'OK' || key === 'CALL' || key === 'LSK') this.screenManager.mediaOpen();
+  }
+
+  /**
+   * Handle games button presses
+   */
+  handleGamesButton(key) {
+    // Navigation in games list
+    if (key === 'UP' || key === '2') {
+      this.screenManager.gamesNavigate('up');
+    } else if (key === 'DOWN' || key === '8') {
+      this.screenManager.gamesNavigate('down');
+    } else if (key === 'OK' || key === 'CALL') {
+      this.screenManager.gamesSelect();
+    } else if (key === 'RSK') {
+      // Let GamesScreen handle back (returns false if should go to MENU)
+      const handled = this.screenManager.gamesBack();
+      if (!handled) {
+        this.phoneState.transitionTo(PhoneStates.MENU);
+        const wallpaper = this.assetLoader.getImage('wallpaper');
+        this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+      }
+    } else if (key === 'END') {
+      this.phoneState.transitionTo(PhoneStates.HOME_SCREEN);
+      this.renderHomeScreen();
+    }
   }
 
   /**
