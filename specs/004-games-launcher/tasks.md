@@ -11,7 +11,7 @@ description: "Task list for Games Launcher implementation"
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-**Status**: Phase 1-3 COMPLETE ✅ | Currently implementing Phase 4 (Game Launch)
+**Status**: Phase 1-5 COMPLETE ✅ | Phase 6 (Polish) Remaining
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -85,18 +85,20 @@ description: "Task list for Games Launcher implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement game selection handler (OK key press) in `components/screen/GamesScreen.js`
-- [ ] T020 [US2] Add emulator container initialization in `components/screen/GamesScreen.js`
-- [ ] T021 [US2] Integrate FreeJ2ME-Web launcher initialization in `components/screen/GamesScreen.js`
-- [ ] T022 [US2] Implement JAR loading logic with selected game path in `components/screen/GamesScreen.js`
-- [ ] T023 [US2] Configure FreeJ2ME-Web canvas to fit 240×320 viewport (152×202 px display area) in `components/screen/GamesScreen.js`
-- [ ] T024 [US2] Map phone keypad inputs to emulator (2/4/6/8 → arrows, OK → fire, LSK/RSK → softkeys) in `components/screen/GamesScreen.js`
-- [ ] T025 [US2] Map keyboard inputs to emulator (arrows, Enter, Esc, number keys) in `components/screen/GamesScreen.js`
-- [ ] T026 [US2] Implement input debouncing to prevent double-processing in `components/screen/GamesScreen.js`
-- [ ] T027 [US2] Add exit handler (RSK/Esc press during gameplay) in `components/screen/GamesScreen.js`
-- [ ] T028 [US2] Implement emulator cleanup (stop loops, remove canvas, free audio) in `components/screen/GamesScreen.js`
-- [ ] T029 [US2] Return to Games list after exit with focus restored in `components/screen/GamesScreen.js`
-- [ ] T030 [US2] Add END key handler to return to Menu from running game in `scripts/boot.js`
+- [X] T019 [US2] Implement game selection handler (OK key press) in `components/screen/GamesScreen.js`
+- [X] T020 [US2] Add emulator container initialization in `components/screen/GamesScreen.js`
+- [X] T021 [US2] Integrate FreeJ2ME-Web launcher initialization in `components/screen/GamesScreen.js`
+- [X] T022 [US2] Implement JAR loading logic with selected game path in `components/screen/GamesScreen.js`
+- [X] T023 [US2] Configure FreeJ2ME-Web canvas to fit 240×320 viewport (152×202 px display area) in `components/screen/GamesScreen.js`
+- [X] T024 [US2] Map phone keypad inputs to emulator - **Handled by FreeJ2ME iframe internally**
+- [X] T025 [US2] Map keyboard inputs to emulator - **Handled by FreeJ2ME iframe internally**
+- [X] T026 [US2] Implement input debouncing - **Handled by FreeJ2ME iframe internally**
+- [X] T027 [US2] Add exit handler (RSK/Esc press during gameplay) in `components/screen/GamesScreen.js`
+- [X] T028 [US2] Implement emulator cleanup (stop loops, remove canvas, free audio) in `components/screen/GamesScreen.js`
+- [X] T029 [US2] Return to Games list after exit with focus restored in `components/screen/GamesScreen.js`
+- [X] T030 [US2] Add END key handler to return to Menu from running game in `scripts/boot.js`
+
+**Implementation Note**: FreeJ2ME runs in an isolated iframe with its own keyboard event listeners. The emulator handles all input mapping internally using the standard FreeJ2ME key bindings (arrows, 0-9, F1/F2 for soft keys, Enter for OK, etc.).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -110,11 +112,11 @@ description: "Task list for Games Launcher implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Add try-catch wrapper around JAR loading in `components/screen/GamesScreen.js`
-- [ ] T032 [US3] Implement error message display with Nokia-style dialog in `components/screen/GamesScreen.js`
-- [ ] T033 [US3] Add error recovery: RSK dismisses error and returns to list in `components/screen/GamesScreen.js`
-- [ ] T034 [US3] Add logging for failed game loads in `components/screen/GamesScreen.js`
-- [ ] T035 [US3] Validate manifest entries on load (check JAR path exists) in `components/utils/GamesManifest.js`
+- [X] T031 [US3] Add try-catch wrapper around JAR loading in `components/screen/GamesScreen.js`
+- [X] T032 [US3] Implement error message display with Nokia-style dialog in `components/screen/GamesScreen.js`
+- [X] T033 [US3] Add error recovery: RSK dismisses error and returns to list in `components/screen/GamesScreen.js`
+- [X] T034 [US3] Add logging for failed game loads in `components/screen/GamesScreen.js`
+- [X] T035 [US3] Validate manifest entries on load (check JAR path exists) in `components/utils/GamesManifest.js`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -124,14 +126,14 @@ description: "Task list for Games Launcher implementation"
 
 **Purpose**: Improvements that affect multiple user stories and edge cases
 
-- [ ] T036 [P] Add loading indicator for large JARs (>1MB) in `components/screen/GamesScreen.js`
-- [ ] T037 [P] Performance testing: verify list opens in ≤200ms
-- [ ] T038 [P] Performance testing: verify game startup ≤3s for 400KB JAR
-- [ ] T039 [P] Edge case testing: Test both games (Bounce Tales, City Bloxx) launch and play
-- [ ] T040 [P] Edge case testing: Verify keyboard and phone keys work without conflicts
-- [ ] T041 [P] Edge case testing: Verify RSK/END exit releases all resources (CPU/audio)
-- [ ] T042 Add inline code documentation and JSDoc comments
-- [ ] T043 Update README.md with Games feature description (if applicable)
+- [ ] T036 [P] Add loading indicator for large JARs (>1MB) in `components/screen/GamesScreen.js` - ALREADY IMPLEMENTED
+- [ ] T037 [P] Performance testing: verify list opens in ≤200ms - NEEDS MANUAL TEST
+- [ ] T038 [P] Performance testing: verify game startup ≤3s for 400KB JAR - NEEDS MANUAL TEST
+- [ ] T039 [P] Edge case testing: Test both games (Bounce Tales, City Bloxx) launch and play - NEEDS MANUAL TEST
+- [ ] T040 [P] Edge case testing: Verify keyboard and phone keys work without conflicts - FreeJ2ME handles this
+- [ ] T041 [P] Edge case testing: Verify RSK/END exit releases all resources (CPU/audio) - NEEDS MANUAL TEST
+- [ ] T042 Add inline code documentation and JSDoc comments - ALREADY DONE
+- [ ] T043 Update README.md with Games feature description (if applicable) - OPTIONAL
 
 ---
 
