@@ -212,6 +212,11 @@ class GamesScreen {
    */
   cleanup() {
     this.stopEmulator();
+    // Ensure panel is hidden if leaving Games
+    try {
+      const panel = document.getElementById('controls-panel');
+      if (panel) panel.style.display = 'none';
+    } catch (_) {}
   }
 
   /**
@@ -229,6 +234,11 @@ class GamesScreen {
       
       this.isEmulatorRunning = false;
       this.emulatorInstance = null;
+      // Hide the controls panel when emulator stops
+      try {
+        const panel = document.getElementById('controls-panel');
+        if (panel) panel.style.display = 'none';
+      } catch (_) {}
     }
   }
 
@@ -276,6 +286,11 @@ class GamesScreen {
         iframe: iframe,
         game: game
       };
+      // Show the controls help panel while emulator is active
+      try {
+        const panel = document.getElementById('controls-panel');
+        if (panel) panel.style.display = 'block';
+      } catch (_) {}
       
       // Wait for iframe to load
       await new Promise((resolve, reject) => {
@@ -302,6 +317,11 @@ class GamesScreen {
       console.error('[GAMES] Failed to initialize emulator:', error);
       this.isEmulatorRunning = false;
       this.emulatorInstance = null;
+      // Hide panel on failure
+      try {
+        const panel = document.getElementById('controls-panel');
+        if (panel) panel.style.display = 'none';
+      } catch (_) {}
       throw error;
     }
   }
