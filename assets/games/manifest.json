@@ -1,0 +1,23 @@
+[
+  {
+    "id": "bounce-tales",
+    "title": "Bounce Tales",
+    "jar": "assets/games/bounce_tales_240x320.jar",
+    "icon": "assets/icons/Bouncy-Tales.png",
+    "sizeKb": 385
+  },
+  {
+    "id": "city-bloxx",
+    "title": "City Bloxx",
+    "jar": "assets/games/citybloxx.jar",
+    "icon": "assets/icons/City-Bloxx.png",
+    "sizeKb": 420
+  },
+  {
+    "id": "asphalt4",
+    "title": "Asphalt 4: Elite Racing",
+    "jar": "assets/games/Asphalt4-EliteRacing.jar",
+    "icon": "assets/icons/Asphalt4.png",
+    "sizeKb": 512
+  }
+]

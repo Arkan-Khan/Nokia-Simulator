@@ -21,6 +21,7 @@ class ScreenManager {
     this.notepadScreen = new NotepadScreen(this.screenElement);
     this.clockScreen = new ClockScreen(this.screenElement);
     this.mediaScreen = new MediaPlayerScreen(this.screenElement);
+    this.gamesScreen = new GamesScreen(this.screenElement);
   }
 
   /**
@@ -233,6 +234,26 @@ class ScreenManager {
   mediaVolume(delta) { this.mediaScreen.adjustVolume(delta); }
   mediaSeek(sec) { this.mediaScreen.seek(sec); }
   mediaGetMode() { return this.mediaScreen.mode; }
+
+  // Games
+  async renderGamesScreen() {
+    this.currentScreen = 'games';
+    await this.gamesScreen.initialize();
+    this.gamesScreen.renderGamesList();
+  }
+  gamesNavigate(direction) {
+    if (direction === 'up') {
+      this.gamesScreen.navigateUp();
+    } else if (direction === 'down') {
+      this.gamesScreen.navigateDown();
+    }
+  }
+  gamesSelect() {
+    this.gamesScreen.selectGame();
+  }
+  gamesBack() {
+    return this.gamesScreen.handleBack();
+  }
 }
 
 // Export for use in other modules
