@@ -428,7 +428,17 @@ class BootController {
   /** Clock app controls */
   handleClockButton(key) {
     if (this.screenManager.clockScreen) {
+      // Ensure we always clean up clock timers when exiting the app
+      const cleanupClock = () => {
+        try {
+          this.screenManager.clockScreen.stopClockTick && this.screenManager.clockScreen.stopClockTick();
+          this.screenManager.clockScreen.stopStopwatchTick && this.screenManager.clockScreen.stopStopwatchTick();
+          this.screenManager.clockScreen.stopTimerTick && this.screenManager.clockScreen.stopTimerTick();
+        } catch {}
+      };
+
       this.screenManager.clockScreen.exitToMenu = () => {
+        cleanupClock();
         this.phoneState.transitionTo(PhoneStates.MENU);
         const wallpaper = this.assetLoader.getImage('wallpaper');
         this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
