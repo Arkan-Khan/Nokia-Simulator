@@ -1,3 +1,5 @@
+ 
+
 /**
  * GamesScreen - Display and manage games list with FreeJ2ME-Web integration
  * Handles list display, navigation, game selection, and emulator lifecycle
@@ -239,6 +241,8 @@ class GamesScreen {
         const panel = document.getElementById('controls-panel');
         if (panel) panel.style.display = 'none';
       } catch (_) {}
+      // Notify host that emulator has stopped
+      try { window.dispatchEvent(new CustomEvent('games_emulator_state', { detail: { running: false } })); } catch(_) {}
     }
   }
 
@@ -290,7 +294,9 @@ class GamesScreen {
       try {
         const panel = document.getElementById('controls-panel');
         if (panel) panel.style.display = 'block';
-      } catch (_) {}
+  } catch (_) {}
+  // Notify host that emulator is starting
+  try { window.dispatchEvent(new CustomEvent('games_emulator_state', { detail: { running: true } })); } catch(_) {}
       
       // Wait for iframe to load
       await new Promise((resolve, reject) => {
@@ -321,8 +327,10 @@ class GamesScreen {
       try {
         const panel = document.getElementById('controls-panel');
         if (panel) panel.style.display = 'none';
-      } catch (_) {}
-      throw error;
+  } catch (_) {}
+  // Notify host that emulator stopped/failed
+  try { window.dispatchEvent(new CustomEvent('games_emulator_state', { detail: { running: false } })); } catch(_) {}
+  throw error;
     }
   }
 

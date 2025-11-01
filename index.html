@@ -5,7 +5,13 @@
   <title>Nokia 5130 XpressMusic Emulator</title>
   <style>
     body {
-      background: #222;
+      /* Full-page animated background */
+      background-color: #000; /* fallback */
+      background-image: url('assets/images/bg.gif');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+      /* Keep existing layout */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -342,9 +348,9 @@
     #controls-panel {
       display: none; /* toggled by GamesScreen when emulator runs */
       position: fixed;
-      top: 50%;
+      top: 12px; /* top right */
       right: 12px; /* extreme right */
-      transform: translateY(-50%);
+      transform: none;
       width: 320px;
       max-height: 90vh;
       overflow: auto;
@@ -431,16 +437,18 @@
     <table>
       <tbody>
         <tr><th>Esc</th><td>Enter/exit FreeJ2ME options</td></tr>
-        <tr><th>F1 or Q</th><td>Left soft key</td></tr>
-        <tr><th>F2 or W</th><td>Right soft key</td></tr>
-        <tr><th>0 to 9</th><td>Keypad numbers</td></tr>
-        <tr><th>Numpad keys</th><td>Numbers with keys 1‑2‑3 and 7‑8‑9 swapped</td></tr>
-        <tr><th>E</th><td>* (star)</td></tr>
-        <tr><th>R</th><td># (hash)</td></tr>
         <tr><th>↑ ↓ ← →</th><td>Directional pad</td></tr>
         <tr><th>Enter ⏎</th><td>Action key (OK button)</td></tr>
+        <tr><th>Red button</th><td>Closes the game</td></tr>
+        <tr><th>RSK (above red button key)</th><td>takes back to game menu</td></tr>
       </tbody>
     </table>
+  </aside>
+
+  <!-- Power hint panel (visible when phone is powered off / on initial load) -->
+  <aside id="power-panel" aria-live="polite" aria-label="Power on help" style="display:none; position: fixed; top: 12px; right: 12px; transform: none; width: 320px; max-height: 90vh; overflow: auto; background: #111; border: 1px solid #444; border-radius: 8px; color: #eee; font-family: Arial, sans-serif; padding: 12px 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.4); z-index: 9;">
+    <h2 style="margin:0 0 10px 0; font-size:16px; color:#fff;">Power tip</h2>
+    <div class="hint" style="font-size:12px; color:#ccc;">Hold the red button for about 3 seconds to power on. </br>Old users know how to use this phone 😎</div>
   </aside>
 
   <!-- Load all modules -->

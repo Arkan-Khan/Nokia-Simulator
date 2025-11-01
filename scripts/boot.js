@@ -10,7 +10,11 @@ class BootController {
     this.assetLoader = new AssetLoader();
     this.screenManager = null;
     this.timeFormatter = TimeFormatter;
-    this.timeUpdateInterval = null;
+  this.timeUpdateInterval = null;
+    
+  // Ambient background audio state
+  this.ambient = null;
+  this.ambientResumeTimer = null;
     
     // Asset paths
     this.assets = {
@@ -57,11 +61,15 @@ class BootController {
         });
         this.startTimeUpdates();
       }
+      // Ensure power hint is hidden when restoring to home
+      this.hidePowerHint();
     } else {
       // Start with black screen
       this.screenManager.renderBlackScreen();
       // Preload assets in background
       this.preloadAssets();
+      // Show power hint on initial load (powered off)
+      this.showPowerHint();
     }
     
     // Setup power button
@@ -70,7 +78,91 @@ class BootController {
     // Setup all button handlers
     this.setupButtonHandlers();
     
+    // Setup ambient background audio (starts on first user interaction)
+    this.setupAmbientAudio();
+    
+    // Listen for game emulator state to manage ambient audio
+    window.addEventListener('games_emulator_state', (e) => {
+      const running = !!(e && e.detail && e.detail.running);
+      if (running) this.pauseAmbient(); else this.maybeResumeAmbient();
+    });
+    
     this.isInitialized = true;
+  }
+
+  /**
+   * Show the right-side power hint panel
+   */
+  showPowerHint() {
+    try {
+      const panel = document.getElementById('power-panel');
+      if (panel) panel.style.display = 'block';
+    } catch {}
+  }
+
+  /**
+   * Hide the right-side power hint panel
+   */
+  hidePowerHint() {
+    try {
+      const panel = document.getElementById('power-panel');
+      if (panel) panel.style.display = 'none';
+    } catch {}
+  }
+
+  // Ambient audio setup and control
+  setupAmbientAudio() {
+    try {
+      this.ambient = new Audio('assets/sounds/scizzie - aquatic ambience.mp3');
+      this.ambient.loop = true;
+      this.ambient.volume = 0.4; // 40%
+      this.ambient.preload = 'auto';
+    } catch {}
+
+    const tryStart = async () => {
+      this.maybeResumeAmbient();
+      ['pointerdown','click','keydown','touchstart'].forEach(evt => {
+        window.removeEventListener(evt, tryStart);
+        document.removeEventListener(evt, tryStart);
+      });
+    };
+    ['pointerdown','click','keydown','touchstart'].forEach(evt => {
+      window.addEventListener(evt, tryStart, { once: true });
+      document.addEventListener(evt, tryStart, { once: true });
+    });
+  }
+
+  pauseAmbient() {
+    if (this.ambient) {
+      try { this.ambient.pause(); } catch {}
+    }
+    if (this.ambientResumeTimer) { clearTimeout(this.ambientResumeTimer); this.ambientResumeTimer = null; }
+  }
+
+  pauseAmbientFor(ms = 2500) {
+    this.pauseAmbient();
+    this.ambientResumeTimer = setTimeout(() => this.maybeResumeAmbient(), ms);
+  }
+
+  async maybeResumeAmbient() {
+    if (!this.ambient) return;
+    // Do not play during booting
+    const st = this.phoneState.getCurrentState();
+    if (st === PhoneStates.BOOTING) return;
+    // Do not play during media playback modes
+    const mode = this.screenManager && this.screenManager.mediaGetMode ? (this.screenManager.mediaGetMode() || '') : '';
+    if (mode === 'ringtones' || mode === 'musicplay' || mode === 'videoplay') return;
+    try {
+      if (this.ambient.paused) await this.ambient.play();
+    } catch (e) {
+      // Likely blocked until user gesture; will retry on interaction
+    }
+  }
+
+  updateAmbientByMediaMode() {
+    const mode = this.screenManager && this.screenManager.mediaGetMode ? (this.screenManager.mediaGetMode() || '') : '';
+    if (mode === 'ringtones' || mode === 'musicplay' || mode === 'videoplay') this.pauseAmbient();
+    else this.maybeResumeAmbient();
   }
 
   /**
@@ -207,6 +299,8 @@ class BootController {
     if (key === 'OK' || key === 'CALL') {
       // Shutter sound
       this.audioManager.play('camera_shutter').catch(()=>{});
+      // Briefly pause ambient during capture
+      this.pauseAmbientFor(2500);
       const item = this.screenManager.capturePhoto();
       if (item) {
         this.screenManager.cameraScreen && this.screenManager.cameraScreen.showPreview(item.dataUrl, 2500);
@@ -456,8 +550,12 @@ class BootController {
         this.phoneState.transitionTo(PhoneStates.MENU);
         const wallpaper = this.assetLoader.getImage('wallpaper');
         this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+        // Leaving media entirely - may resume ambient
+        this.maybeResumeAmbient();
       } else {
         this.screenManager.mediaBack();
+        // Update ambient after navigating back to a new media mode
+        setTimeout(()=> this.updateAmbientByMediaMode(), 0);
       }
       return;
     }
@@ -468,6 +566,7 @@ class BootController {
       else if (key === 'RIGHT') this.screenManager.mediaSeek(+5);
       else if (key === 'OK') this.screenManager.mediaTogglePlay();
       else if (key === 'LSK') this.screenManager.mediaBack();
+      this.pauseAmbient();
       return;
     }
     if (mode === 'musicplay') {
@@ -477,12 +576,15 @@ class BootController {
       else if (key === 'RIGHT') this.screenManager.mediaScreen.musicNext && this.screenManager.mediaScreen.musicNext();
       else if (key === 'OK') this.screenManager.mediaTogglePlay();
       else if (key === 'LSK') this.screenManager.mediaBack();
+      this.pauseAmbient();
       return;
     }
     // In root/lists: navigate and actions
     if (key === 'UP') this.screenManager.mediaNavigate('up');
     else if (key === 'DOWN') this.screenManager.mediaNavigate('down');
     else if (key === 'OK' || key === 'CALL' || key === 'LSK') this.screenManager.mediaOpen();
+    // After any navigation/open, sync ambient based on mode (ringtones autoplay, etc.)
+    setTimeout(()=> this.updateAmbientByMediaMode(), 0);
   }
 
   /**
@@ -595,6 +697,10 @@ class BootController {
     }
 
     try {
+      // Hide power hint immediately when booting starts
+      this.hidePowerHint();
+      // Pause ambient during boot sequence
+      this.pauseAmbient();
       // Start boot audio and animation simultaneously
       const audioPromise = this.audioManager.play('boot_sound');
       const animationPromise = this.screenManager.renderBootAnimation(this.assets.bootVideo);
@@ -624,6 +730,9 @@ class BootController {
         localStorage.setItem('nokia5130_state', PhoneStates.HOME_SCREEN);
         await this.renderHomeScreen();
         this.startTimeUpdates();
+        this.hidePowerHint();
+        // Try resuming ambient once we're on home
+        this.maybeResumeAmbient();
       }
     } catch (error) {
       console.error('[BOOT] Boot sequence failed:', error);
@@ -631,6 +740,8 @@ class BootController {
       if (this.phoneState.transitionTo(PhoneStates.HOME_SCREEN)) {
         await this.renderHomeScreen();
         this.startTimeUpdates();
+        this.hidePowerHint();
+        this.maybeResumeAmbient();
       }
     }
   }
@@ -658,6 +769,7 @@ class BootController {
         // Clear state from localStorage
         localStorage.removeItem('nokia5130_state');
         this.screenManager.renderBlackScreen();
+        this.showPowerHint();
       }
     } catch (error) {
       console.error('[BOOT] Shutdown sequence failed:', error);
@@ -666,6 +778,7 @@ class BootController {
         // Clear state from localStorage
         localStorage.removeItem('nokia5130_state');
         this.screenManager.renderBlackScreen();
+         this.showPowerHint();
       }
     }
   }
