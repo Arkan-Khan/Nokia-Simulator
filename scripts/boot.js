@@ -115,7 +115,7 @@ class BootController {
     try {
       this.ambient = new Audio('assets/sounds/scizzie - aquatic ambience.mp3');
       this.ambient.loop = true;
-      this.ambient.volume = 0.4; // 40%
+      this.ambient.volume = 0.3; // 30%
       this.ambient.preload = 'auto';
     } catch {}
 
