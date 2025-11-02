@@ -95,8 +95,13 @@ class BootController {
    */
   showPowerHint() {
     try {
+      const dismissed = localStorage.getItem('nokia5130_power_tip_dismissed');
+      if (dismissed === '1') return; // respect user dismissal on mobile
       const panel = document.getElementById('power-panel');
       if (panel) panel.style.display = 'block';
+      // Hide i button when panel is shown
+      const toggle = document.getElementById('power-tip-toggle');
+      if (toggle) toggle.style.display = 'none';
     } catch {}
   }
 
@@ -107,6 +112,9 @@ class BootController {
     try {
       const panel = document.getElementById('power-panel');
       if (panel) panel.style.display = 'none';
+      // Also hide i button when phone is on
+      const toggle = document.getElementById('power-tip-toggle');
+      if (toggle) toggle.style.display = 'none';
     } catch {}
   }
 

@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Nokia 5130 XpressMusic Emulator</title>
   <link rel="icon" type="image/x-icon" href="\assets\images\Nokia-Favicon.webp">
   <style>
@@ -21,6 +22,9 @@
       overflow: hidden;
       font-family: Arial, sans-serif;
     }
+    html, body { -webkit-text-size-adjust: 100%; }
+    /* Prevent double-tap zoom on mobile for interactive elements */
+    a, button, .button { touch-action: manipulation; }
     /* Layout wrapper no longer used; phone remains centered by body flex */
     .phone {
       position: relative;
@@ -28,6 +32,7 @@
       height: 527px;
       background: url('assets/images/Nokia.png') no-repeat center/contain;
       cursor: default;
+      transform-origin: center center;
     }
     .screen {
       position: absolute;
@@ -369,6 +374,32 @@
       font-size: 16px;
       color: #fff;
     }
+
+    /* Mobile-only power tip toggle button */
+    #power-tip-toggle {
+      position: fixed;
+      right: 12px;
+      top: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      display: none; /* default hidden; shown via media query */
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 11;
+      border: 1px solid rgba(255,255,255,0.2);
+      user-select: none;
+    }
+    #power-tip-toggle:active { filter: brightness(1.2); }
+    /* Show the tip toggle only on touch/mobile devices */
+    @media (hover: none) and (pointer: coarse) {
+      #power-tip-toggle { display: flex; }
+    }
     #controls-panel .hint {
       font-size: 12px;
       color: #ccc;
@@ -481,9 +512,15 @@
 
   <!-- Power hint panel (visible when phone is powered off / on initial load) -->
   <aside id="power-panel" aria-live="polite" aria-label="Power on help" style="display:none; position: fixed; top: 12px; right: 12px; transform: none; width: 320px; max-height: 90vh; overflow: auto; background: #111; border: 1px solid #444; border-radius: 8px; color: #eee; font-family: Arial, sans-serif; padding: 12px 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.4); z-index: 9;">
-    <h2 style="margin:0 0 10px 0; font-size:16px; color:#fff;">Power tip</h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <h2 style="margin:0; font-size:16px; color:#fff;">Power tip</h2>
+      <button id="power-panel-close" aria-label="Close power tip" style="background:transparent;border:none;color:#ccc;font-size:18px;line-height:1;cursor:pointer;">&times;</button>
+    </div>
     <div class="hint" style="font-size:12px; color:#ccc;">Hold the red button for about 3 seconds to power on. </br>Old users know how to use this phone 😎</div>
   </aside>
+
+  <!-- Mobile info toggle for power tip -->
+  <button id="power-tip-toggle" aria-label="Show power tip">i</button>
 
   <!-- Load all modules -->
   <script src="components/utils/Logger.js"></script>
@@ -527,8 +564,76 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const screenElement = document.getElementById('screen');
       const bootController = new BootController();
+      // Responsive scaling for the phone shell
+      const BASE_W = 229, BASE_H = 527;
+      const phoneEl = document.querySelector('.phone');
+      function fitPhone() {
+        if (!phoneEl) return;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const isMobile = vw <= 768;
+        if (isMobile) {
+          // Mobile: shrink a bit more (15px each side) and nudge right 8px
+          const margin = Math.min(16, Math.max(8, vw * 0.03));
+          const extra = 15; // each side
+          const availW = Math.max(100, vw - margin * 2 - extra * 2);
+          const availH = Math.max(100, vh - margin * 2 - extra * 2);
+          const scaleW = availW / BASE_W;
+          const scaleH = availH / BASE_H;
+          const scale = Math.max(0.5, Math.min(scaleW, scaleH));
+          phoneEl.style.transform = `translateX(8px) scale(${scale})`;
+        } else {
+          // Desktop: increase by 15px each side (30px total width/height)
+          // 229 + 30 = 259, 527 + 30 = 557
+          const scaleW = (BASE_W + 30) / BASE_W;  // 1.131
+          const scaleH = (BASE_H + 30) / BASE_H;  // 1.057
+          const scale = Math.min(scaleW, scaleH); // use the smaller to maintain aspect ratio
+          phoneEl.style.transform = `translateX(0px) scale(${scale})`;
+        }
+      }
+      fitPhone();
+      window.addEventListener('resize', fitPhone);
+
+      // Power tip controls: show/hide i button and panel based on phone state
+      const powerPanel = document.getElementById('power-panel');
+      const powerToggle = document.getElementById('power-tip-toggle');
+      const powerClose = document.getElementById('power-panel-close');
+      const TIP_KEY = 'nokia5130_power_tip_dismissed';
       
-      try {
+      const updatePowerUI = (isPoweredOff) => {
+        const dismissed = localStorage.getItem(TIP_KEY) === '1';
+        if (isPoweredOff && !dismissed) {
+          // Powered off and user hasn't dismissed: show panel, hide i button
+          if (powerPanel) powerPanel.style.display = 'block';
+          if (powerToggle) powerToggle.style.display = 'none';
+        } else if (isPoweredOff && dismissed) {
+          // Powered off but dismissed: show i button, hide panel
+          if (powerPanel) powerPanel.style.display = 'none';
+          if (powerToggle) powerToggle.style.display = '';
+        } else {
+          // Powered on: hide both
+          if (powerPanel) powerPanel.style.display = 'none';
+          if (powerToggle) powerToggle.style.display = 'none';
+        }
+      };
+      
+      const showTip = () => { 
+        if (powerPanel) powerPanel.style.display = 'block'; 
+        if (powerToggle) powerToggle.style.display = 'none';
+        localStorage.removeItem(TIP_KEY); 
+      };
+      
+      const hideTip = () => { 
+        if (powerPanel) powerPanel.style.display = 'none'; 
+        if (powerToggle) powerToggle.style.display = '';
+        localStorage.setItem(TIP_KEY, '1'); 
+      };
+      
+      powerToggle?.addEventListener('click', (e) => { e.preventDefault(); showTip(); });
+      powerClose?.addEventListener('click', (e) => { e.preventDefault(); hideTip(); });
+      
+      // Expose updatePowerUI globally so boot.js can call it
+      window.updatePowerUI = updatePowerUI;      try {
         await bootController.initialize(screenElement);
       } catch (error) {
         console.error('[MAIN] Failed to initialize emulator:', error);
