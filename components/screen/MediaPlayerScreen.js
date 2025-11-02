@@ -98,6 +98,34 @@ class MediaPlayerScreen {
           <div>${left}</div><div>${center}</div><div>${right}</div>
         </div>
       </div>`;
+
+    // After render, scroll focused row into view (no scrollbar shown)
+    this.scrollListToFocused();
+  }
+
+  /**
+   * Ensure the focused item is visible by adjusting the inner container top.
+   */
+  scrollListToFocused() {
+    try {
+      const container = this.screenElement.querySelector('.media-list');
+      const inner = this.screenElement.querySelector('.media-list .inner');
+      if (!container || !inner) return;
+      const rows = Array.from(inner.children);
+      const focusedEl = rows[this.index];
+      if (!focusedEl) return;
+      const viewHeight = container.clientHeight;
+      const rTop = focusedEl.offsetTop;
+      const rBottom = rTop + focusedEl.offsetHeight;
+      let top = parseInt(inner.style.top || '0', 10);
+      if (rBottom + top > viewHeight) {
+        top = viewHeight - rBottom;
+      }
+      if (rTop + top < 0) {
+        top = -rTop;
+      }
+      inner.style.top = `${top}px`;
+    } catch {}
   }
 
   async openFocused() {

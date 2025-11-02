@@ -14,6 +14,7 @@ class GamesScreen {
     this.isShowingList = true;
     this.isEmulatorRunning = false;
     this.emulatorInstance = null;
+    this._heldKeys = new Set();
   }
 
   /**
@@ -214,11 +215,8 @@ class GamesScreen {
    */
   cleanup() {
     this.stopEmulator();
-    // Ensure panel is hidden if leaving Games
-    try {
-      const panel = document.getElementById('controls-panel');
-      if (panel) panel.style.display = 'none';
-    } catch (_) {}
+    // Ensure controls UI is hidden if leaving Games
+    try { window.updateControlsUI && window.updateControlsUI(false); } catch(_) {}
   }
 
   /**
@@ -227,6 +225,12 @@ class GamesScreen {
   stopEmulator() {
     if (this.isEmulatorRunning && this.emulatorInstance) {
       console.log('[GAMES] Stopping emulator');
+      // Release any held keys to avoid stuck states
+      try {
+        for (const key of Array.from(this._heldKeys)) {
+          this.sendEmulatorKeyUp(key);
+        }
+      } catch(_) {}
       
       // Clean up emulator resources
       if (this.emulatorInstance.iframe) {
@@ -236,11 +240,8 @@ class GamesScreen {
       
       this.isEmulatorRunning = false;
       this.emulatorInstance = null;
-      // Hide the controls panel when emulator stops
-      try {
-        const panel = document.getElementById('controls-panel');
-        if (panel) panel.style.display = 'none';
-      } catch (_) {}
+      // Hide the controls UI when emulator stops
+      try { window.updateControlsUI && window.updateControlsUI(false); } catch(_) {}
       // Notify host that emulator has stopped
       try { window.dispatchEvent(new CustomEvent('games_emulator_state', { detail: { running: false } })); } catch(_) {}
     }
@@ -290,11 +291,8 @@ class GamesScreen {
         iframe: iframe,
         game: game
       };
-      // Show the controls help panel while emulator is active
-      try {
-        const panel = document.getElementById('controls-panel');
-        if (panel) panel.style.display = 'block';
-  } catch (_) {}
+  // Notify host that emulator is starting and show mobile controls toggle
+  try { window.updateControlsUI && window.updateControlsUI(true); } catch(_) {}
   // Notify host that emulator is starting
   try { window.dispatchEvent(new CustomEvent('games_emulator_state', { detail: { running: true } })); } catch(_) {}
       
@@ -318,20 +316,84 @@ class GamesScreen {
       });
       
       console.log('[GAMES] Emulator initialized successfully');
+      // Try focusing the emulator canvas to ensure it receives keyboard events
+      try {
+        const doc = iframe.contentWindow && iframe.contentWindow.document;
+        const canvas = doc && doc.getElementById('display');
+        if (canvas && canvas.focus) canvas.focus();
+      } catch (_) {}
       
     } catch (error) {
       console.error('[GAMES] Failed to initialize emulator:', error);
       this.isEmulatorRunning = false;
       this.emulatorInstance = null;
-      // Hide panel on failure
-      try {
-        const panel = document.getElementById('controls-panel');
-        if (panel) panel.style.display = 'none';
-  } catch (_) {}
+  // Hide controls UI on failure
+  try { window.updateControlsUI && window.updateControlsUI(false); } catch(_) {}
   // Notify host that emulator stopped/failed
   try { window.dispatchEvent(new CustomEvent('games_emulator_state', { detail: { running: false } })); } catch(_) {}
   throw error;
     }
+  }
+
+  /**
+   * Send a keyboard event into the emulator iframe
+   * @param {string} key - One of ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Enter, Escape
+   */
+  sendEmulatorKey(key) {
+    if (!this.emulatorInstance || !this.emulatorInstance.iframe) return;
+    const iframe = this.emulatorInstance.iframe;
+    const win = iframe.contentWindow;
+    if (!win) return;
+    const doc = win.document;
+    const target = doc.getElementById('display') || doc.body || win;
+    // Ensure focus to receive key events
+    try { target.focus && target.focus(); } catch(_) {}
+    const optsDown = { key, code: key, bubbles: true, cancelable: true };
+    const optsUp = { key, code: key, bubbles: true, cancelable: true };
+    try {
+      target.dispatchEvent(new KeyboardEvent('keydown', optsDown));
+      target.dispatchEvent(new KeyboardEvent('keyup', optsUp));
+    } catch (_) {
+      // Fallback to window
+      try {
+        win.dispatchEvent(new KeyboardEvent('keydown', optsDown));
+        win.dispatchEvent(new KeyboardEvent('keyup', optsUp));
+      } catch(__) {}
+    }
+  }
+
+  /**
+   * Dispatch only keydown into emulator (for hold semantics)
+   */
+  sendEmulatorKeyDown(key) {
+    if (!this.emulatorInstance || !this.emulatorInstance.iframe) return;
+    if (this._heldKeys.has(key)) return; // avoid duplicate downs
+    const iframe = this.emulatorInstance.iframe;
+    const win = iframe.contentWindow;
+    if (!win) return;
+    const doc = win.document;
+    const target = doc.getElementById('display') || doc.body || win;
+    try { target.focus && target.focus(); } catch(_) {}
+    const evt = new KeyboardEvent('keydown', { key, code: key, bubbles: true, cancelable: true });
+    try { target.dispatchEvent(evt); } catch(_) { try { win.dispatchEvent(evt); } catch(__) {} }
+    this._heldKeys.add(key);
+  }
+
+  /**
+   * Dispatch only keyup into emulator (for hold semantics)
+   */
+  sendEmulatorKeyUp(key) {
+    if (!this.emulatorInstance || !this.emulatorInstance.iframe) return;
+    if (!this._heldKeys.has(key)) return; // only if previously held
+    const iframe = this.emulatorInstance.iframe;
+    const win = iframe.contentWindow;
+    if (!win) return;
+    const doc = win.document;
+    const target = doc.getElementById('display') || doc.body || win;
+    try { target.focus && target.focus(); } catch(_) {}
+    const evt = new KeyboardEvent('keyup', { key, code: key, bubbles: true, cancelable: true });
+    try { target.dispatchEvent(evt); } catch(_) { try { win.dispatchEvent(evt); } catch(__) {} }
+    this._heldKeys.delete(key);
   }
 
   /**

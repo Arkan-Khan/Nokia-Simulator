@@ -26,6 +26,8 @@ class BootController {
     };
     
     this.isInitialized = false;
+    // Suppress click events for certain keys during Games hold handling
+    this._gamesHoldKeysDown = new Set();
   }
 
   /**
@@ -138,6 +140,22 @@ class BootController {
       window.addEventListener(evt, tryStart, { once: true });
       document.addEventListener(evt, tryStart, { once: true });
     });
+
+    // Pause ambient when tab is not active or page is hidden, resume when active
+    const onVisibility = () => {
+      if (document.hidden) this.pauseAmbient(); else this.maybeResumeAmbient();
+    };
+    const onBlur = () => this.pauseAmbient();
+    const onFocus = () => this.maybeResumeAmbient();
+    const onPageHide = () => this.pauseAmbient();
+    const onPageShow = () => this.maybeResumeAmbient();
+    try {
+      document.addEventListener('visibilitychange', onVisibility);
+      window.addEventListener('blur', onBlur);
+      window.addEventListener('focus', onFocus);
+      window.addEventListener('pagehide', onPageHide);
+      window.addEventListener('pageshow', onPageShow);
+    } catch {}
   }
 
   pauseAmbient() {
@@ -219,21 +237,101 @@ class BootController {
     const buttons = document.querySelectorAll('.button');
     
     buttons.forEach(button => {
+      // Pointer-based press/release for hold + multi-key in Games only
+      button.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        const key = button.getAttribute('data-key');
+        this.handleButtonDown(key);
+      });
+      const upHandler = (e) => {
+        e.preventDefault();
+        const key = button.getAttribute('data-key');
+        this.handleButtonUp(key);
+      };
+      button.addEventListener('pointerup', upHandler);
+      button.addEventListener('pointercancel', upHandler);
+      button.addEventListener('pointerleave', upHandler);
+
       button.addEventListener('click', (e) => {
         e.preventDefault();
         
         const key = button.getAttribute('data-key');
         const currentState = this.phoneState.getCurrentState();
-        // Play keyclick for most keys, but suppress during camera shutter
-        if (currentState !== PhoneStates.POWERED_OFF) {
-          const suppressClick = (currentState === PhoneStates.CAMERA) && (key === 'OK' || key === 'CALL');
-          if (!suppressClick) {
-            this.audioManager.play('keyclick').catch(() => {});
+        // If in Games and emulator is running, we may be doing hold semantics; suppress click for holdable keys
+        if (currentState === PhoneStates.GAMES) {
+          const gs = this.screenManager && this.screenManager.gamesScreen;
+          if (gs && gs.isEmulatorRunning) {
+            const holdable = (key === 'UP' || key === 'DOWN' || key === 'LEFT' || key === 'RIGHT' || key === 'OK' || key === 'CALL' || key === 'LSK');
+            if (holdable && this._gamesHoldKeysDown.has(key)) {
+              return; // ignore click; pointer handlers already handled
+            }
           }
         }
+        // Play keyclick for most keys, but suppress during camera shutter
+            if (currentState !== PhoneStates.POWERED_OFF) {
+              // Suppress keyclick sounds while playing games in emulator to reduce spam
+              let suppressClick = false;
+              try {
+                if (currentState === PhoneStates.CAMERA && (key === 'OK' || key === 'CALL')) suppressClick = true;
+                const gs = this.screenManager && this.screenManager.gamesScreen;
+                if (currentState === PhoneStates.GAMES && gs && gs.isEmulatorRunning) {
+                  // During emulator play, do not play keyclicks for holdable/rapid keys
+                  const holdable = (key === 'UP' || key === 'DOWN' || key === 'LEFT' || key === 'RIGHT' || key === 'OK' || key === 'CALL' || key === 'LSK');
+                  if (holdable) suppressClick = true;
+                }
+              } catch(_) {}
+              if (!suppressClick) {
+                this.audioManager.play('keyclick').catch(() => {});
+              }
+            }
         this.handleButtonPress(key);
       });
     });
+  }
+
+  /**
+   * Pointer down handler for hold + multi-key in Games
+   */
+  handleButtonDown(key) {
+    const currentState = this.phoneState.getCurrentState();
+    if (currentState !== PhoneStates.GAMES) return; // only special-case in Games
+    const gs = this.screenManager && this.screenManager.gamesScreen;
+    if (!(gs && gs.isEmulatorRunning)) return;
+    // Map holdable keys to emulator keydown
+    let mapped = null;
+    if (key === 'UP') mapped = 'ArrowUp';
+    else if (key === 'DOWN') mapped = 'ArrowDown';
+    else if (key === 'LEFT') mapped = 'ArrowLeft';
+    else if (key === 'RIGHT') mapped = 'ArrowRight';
+    else if (key === 'OK' || key === 'CALL') mapped = 'Enter';
+    else if (key === 'LSK') mapped = 'Escape';
+    // Note: RSK remains as back/exit via click; we don't send Escape for RSK
+    if (mapped) {
+      this._gamesHoldKeysDown.add(key);
+      try { gs.sendEmulatorKeyDown(mapped); } catch {}
+    }
+  }
+
+  /**
+   * Pointer up/cancel/leave handler for hold + multi-key in Games
+   */
+  handleButtonUp(key) {
+    const currentState = this.phoneState.getCurrentState();
+    if (currentState !== PhoneStates.GAMES) return; // only special-case in Games
+    const gs = this.screenManager && this.screenManager.gamesScreen;
+    if (!(gs && gs.isEmulatorRunning)) return;
+    // Map holdable keys to emulator keyup
+    let mapped = null;
+    if (key === 'UP') mapped = 'ArrowUp';
+    else if (key === 'DOWN') mapped = 'ArrowDown';
+    else if (key === 'LEFT') mapped = 'ArrowLeft';
+    else if (key === 'RIGHT') mapped = 'ArrowRight';
+    else if (key === 'OK' || key === 'CALL') mapped = 'Enter';
+    else if (key === 'LSK') mapped = 'Escape';
+    if (mapped) {
+      this._gamesHoldKeysDown.delete(key);
+      try { gs.sendEmulatorKeyUp(mapped); } catch {}
+    }
   }
 
   /**
@@ -477,6 +575,8 @@ class BootController {
       this.renderCallingScreen();
     } else if (key === 'RSK' || key === 'END') {
       // Back button - return to home screen
+      // Clear dialer buffer so next dial starts fresh
+      try { this.screenManager.dialerScreen && this.screenManager.dialerScreen.setNumber && this.screenManager.dialerScreen.setNumber(''); } catch {}
       this.phoneState.transitionTo(PhoneStates.HOME_SCREEN);
       this.renderHomeScreen();
     }
@@ -599,6 +699,32 @@ class BootController {
    * Handle games button presses
    */
   handleGamesButton(key) {
+    const gs = this.screenManager.gamesScreen;
+    const running = gs && gs.isEmulatorRunning;
+    if (running) {
+      // Map Nokia keypad to emulator keyboard
+      if (key === 'UP') gs.sendEmulatorKey('ArrowUp');
+      else if (key === 'DOWN') gs.sendEmulatorKey('ArrowDown');
+      else if (key === 'LEFT') gs.sendEmulatorKey('ArrowLeft');
+      else if (key === 'RIGHT') gs.sendEmulatorKey('ArrowRight');
+      else if (key === 'OK' || key === 'CALL') gs.sendEmulatorKey('Enter');
+      else if (key === 'LSK') gs.sendEmulatorKey('Escape');
+      else if (key === 'RSK') {
+        // Back out of emulator
+        const handled = this.screenManager.gamesBack();
+        if (!handled) {
+          this.phoneState.transitionTo(PhoneStates.MENU);
+          const wallpaper = this.assetLoader.getImage('wallpaper');
+          this.screenManager.renderMenuScreen(wallpaper ? wallpaper.src : null);
+        }
+      } else if (key === 'END') {
+        // End key returns to home
+        this.phoneState.transitionTo(PhoneStates.HOME_SCREEN);
+        this.renderHomeScreen();
+      }
+      return;
+    }
+
     // Navigation in games list
     if (key === 'UP' || key === '2') {
       this.screenManager.gamesNavigate('up');

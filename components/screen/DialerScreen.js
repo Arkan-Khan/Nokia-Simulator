@@ -9,7 +9,12 @@ class DialerScreen {
   }
 
   render(initialDigit = '') {
-    if (initialDigit) this.addDigit(initialDigit);
+    // If rendering with an initial digit (i.e., starting from Home), start fresh
+    if (initialDigit) {
+      this.number = '';
+      this.addDigit(initialDigit);
+      return; // addDigit will re-render
+    }
     this.screenElement.innerHTML = `
       <div class="screen-content" style="background:#000; color:#fff;">
         <div class="dialer-status-bar">
