@@ -9,6 +9,8 @@ class ContactsScreen {
     this.lastKey = null;
     this.lastKeyTime = 0;
     this.lastCycleIndex = 0;
+    this.typingMode = 'Abc'; // for name input only
+    this.editingId = null; // null=new, id=editing existing
   }
 
   createMultiTap() {
@@ -58,7 +60,7 @@ class ContactsScreen {
           <div class="inner" style="position:absolute;top:0;left:0;right:0;">${rows}</div>
         </div>
         <div style="position:absolute;bottom:0;left:0;right:0;height:24px;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:9px;font-weight:bold;">
-          <div>Options</div><div>Select</div><div>Back</div>
+          <div>New</div><div>Select</div><div>Back</div>
         </div>
       </div>`;
 
@@ -101,6 +103,8 @@ class ContactsScreen {
   startNew() {
     this.mode = 'edit';
     this.editor = { field: 'name', name: '', number: '' };
+    this.typingMode = 'Abc';
+    this.editingId = null;
     this.renderEditor();
   }
 
@@ -108,16 +112,16 @@ class ContactsScreen {
     const { name, number, field } = this.editor;
     this.screenElement.innerHTML = `
       <div class="screen-content" style="background:#000;color:#fff;">
-        <div style="position:absolute;top:0;left:0;right:0;height:16px;background:rgba(20,20,20,0.9);display:flex;justify-content:space-between;align-items:center;padding:0 6px;font-size:9px;font-weight:bold;">
-          <span>New contact</span><span>${new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})}</span>
+        <div style="position:absolute;top:0;left:0;right:0;height:16px;background:#000;color:#fff;display:flex;justify-content:space-between;align-items:center;padding:0 6px;font-size:9px;font-weight:bold;">
+          <span>${this.typingMode}</span><span></span>
         </div>
-        <div style="position:absolute;top:20px;left:10px;right:10px;">
-          <div style="font-size:9px;opacity:0.8;">Name</div>
-          <div style="font-size:12px;font-weight:bold;border-bottom:1px solid rgba(255,255,255,0.3);padding:2px 0;">${name}${field==='name' ? '_' : ''}</div>
-          <div style="font-size:9px;opacity:0.8;margin-top:8px;">Number</div>
-          <div style="font-size:12px;font-weight:bold;border-bottom:1px solid rgba(255,255,255,0.3);padding:2px 0;">${number}${field==='number' ? '_' : ''}</div>
+        <div style="position:absolute;top:18px;left:6px;right:6px;bottom:24px;background:#fff;color:#000;border-radius:6px;padding:8px;">
+          <div style="font-size:9px;opacity:0.8;color:#333;">Name</div>
+          <div style="font-size:12px;font-weight:bold;border-bottom:1px solid rgba(0,0,0,0.2);padding:4px 0;">${name}${field==='name' ? '<span style="opacity:0.6;">_</span>' : ''}</div>
+          <div style="font-size:9px;opacity:0.8;margin-top:10px;color:#333;">Number</div>
+          <div style="font-size:12px;font-weight:bold;border-bottom:1px solid rgba(0,0,0,0.2);padding:4px 0;">${number}${field==='number' ? '<span style="opacity:0.6;">_</span>' : ''}</div>
         </div>
-        <div style="position:absolute;bottom:0;left:0;right:0;height:24px;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:9px;font-weight:bold;">
+        <div style="position:absolute;bottom:0;left:0;right:0;height:24px;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:9px;font-weight:bold;">
           <div>Save</div><div></div><div>Back</div>
         </div>
       </div>`;
@@ -150,6 +154,7 @@ class ContactsScreen {
       }
       if (key === 'LSK') { this.saveEditor(); return; }
       if (key === 'RSK' || key === 'END') { this.renderList(); return; }
+      if (key === '#') { if (this.editor.field === 'name') { this.toggleTypingMode(); } return; }
       if (/^[0-9]$/.test(key)) {
         if (this.editor.field === 'number') {
           if (this.editor.number.length < 18) this.editor.number += key;
@@ -164,20 +169,62 @@ class ContactsScreen {
   // Multi-tap for editor name field
   handleMultiTap(key) {
     const now = Date.now();
-    const set = this.multiTap[key] || '';
+    const set = this.getCharSetForKey(key);
     if (!set) return;
     const timeout = 900;
     if (this.lastKey === key && (now - this.lastKeyTime) < timeout && this.editor.name.length > 0) {
-      // cycle last char
-      this.lastCycleIndex = (this.lastCycleIndex + 1) % set.length;
-      this.editor.name = this.editor.name.slice(0, -1) + set[this.lastCycleIndex];
+      // cycle last char (respect case for Abc)
+      const lastChar = this.editor.name[this.editor.name.length - 1];
+      let baseSet = set;
+      const wasUpper = /[A-Z]/.test(lastChar);
+      if (this.typingMode === 'Abc') baseSet = set.toLowerCase();
+      const idxInSet = baseSet.indexOf(lastChar.toLowerCase());
+      if (idxInSet !== -1) {
+        const nextIdx = (idxInSet + 1) % baseSet.length;
+        let nextChar = baseSet[nextIdx];
+        if (this.typingMode === 'ABC') nextChar = nextChar.toUpperCase();
+        else if (this.typingMode === 'abc') nextChar = nextChar.toLowerCase();
+        else if (this.typingMode === 'Abc') nextChar = wasUpper ? nextChar.toUpperCase() : nextChar.toLowerCase();
+        this.editor.name = this.editor.name.slice(0, -1) + nextChar;
+      } else {
+        this.lastCycleIndex = 0;
+        this.editor.name += this.transformByMode(set[0]);
+      }
     } else {
       // new char
       this.lastCycleIndex = 0;
-      this.editor.name += set[0];
+      this.editor.name += this.transformByMode(set[0], true);
     }
     this.lastKey = key;
     this.lastKeyTime = now;
+    this.renderEditor();
+  }
+
+  getCharSetForKey(key) {
+    if (this.typingMode === '123') {
+      if (key === '0') return ' ';
+      return key; // single-character set
+    }
+    const set = this.multiTap[key] || '';
+    if (!set) return '';
+    if (this.typingMode === 'ABC') return set.toUpperCase();
+    if (this.typingMode === 'abc' || this.typingMode === 'Abc') return set.toLowerCase();
+    return set;
+  }
+
+  transformByMode(ch, isNew = false) {
+    if (this.typingMode === '123') return ch;
+    if (this.typingMode === 'ABC') return ch.toUpperCase();
+    if (this.typingMode === 'abc') return ch.toLowerCase();
+    const prev = this.editor.name[this.editor.name.length - 1] || '\n';
+    const atWordStart = this.editor.name.length === 0 || prev === ' ' || prev === '\n';
+    return atWordStart ? ch.toUpperCase() : ch.toLowerCase();
+  }
+
+  toggleTypingMode() {
+    const order = ['Abc', 'ABC', 'abc', '123'];
+    const i = order.indexOf(this.typingMode);
+    this.typingMode = order[(i + 1) % order.length];
     this.renderEditor();
   }
 
@@ -232,14 +279,25 @@ class ContactsScreen {
     // LSK in view: Edit existing
     this.mode = 'edit';
     const items = this.getFiltered();
-    const c = items[this.listIndex] || { name:'', number:'' };
+    const c = items[this.listIndex] || { id:null, name:'', number:'' };
+    this.editingId = c.id || null;
     this.editor = { field: 'name', name: c.name || '', number: c.number || '' };
     this.renderEditor();
   }
 
   saveEditor() {
     if (!this.editor.name && !this.editor.number) { this.renderList(); return; }
-    ContactsStore.add({ name: this.editor.name, number: this.editor.number });
+    if (this.editingId) {
+      const all = ContactsStore.loadAll();
+      const idx = all.findIndex(c => c.id === this.editingId);
+      if (idx >= 0) {
+        ContactsStore.updateAt(idx, { name: this.editor.name, number: this.editor.number });
+      } else {
+        ContactsStore.add({ name: this.editor.name, number: this.editor.number });
+      }
+    } else {
+      ContactsStore.add({ name: this.editor.name, number: this.editor.number });
+    }
     this.filterText = '';
     this.renderList();
   }
