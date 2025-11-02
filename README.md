@@ -40,7 +40,7 @@ Preloaded with nostalgia:
 ### Games Powered by Real J2ME
 Integrated via **[FreeJ2ME-Web](https://github.com/zb3/freej2me-web)** – play actual J2ME games in the browser!
 
-> **Note:** Best experienced on desktop for now. Mobile responsiveness and on-screen game controls coming soon!
+> Mobile: The UI is mobile‑responsive and you can play using the on‑screen Nokia keypad. However, J2ME emulation is CPU/GPU intensive in mobile browsers, so games may feel laggy. For the smoothest experience, use a laptop or desktop browser.
 
 ---
 
@@ -84,9 +84,7 @@ From the home screen:
   - Arrow keys for movement
   - Enter for OK/action
   - LSK/RSK to access game menu
-- Look for the help panel in the top-right corner when gaming
-
-> **Note:** On-screen keypad game controls coming in a future update!
+- Look for the help panel in the top-right corner when gaming (on mobile, tap the small “i” button)
 
 ---
 
@@ -100,6 +98,8 @@ All your data persists in your browser:
 
 Just like a real phone (but without running out of memory)!
 
+Tip: To reset all data, clear the site data (localStorage) for this origin in your browser settings.
+
 ---
 
 ## Audio Experience
@@ -111,15 +111,48 @@ Just like a real phone (but without running out of memory)!
   - Camera capture
   - Media playback
   - Game sessions
+  - When the tab is hidden or the screen sleeps (resumes when active)
 
 ---
 
 ## Current Limitations
 
-- **Desktop only** for the best experience (mobile responsive version in progress)
-- On-screen keypad doesn't control games yet (keyboard required)
+- Mobile responsive: yes, but games may feel laggy on phones; desktop is recommended for smooth gameplay
 - "Go to" feature not yet implemented
 - Some assets are intentionally lightweight for demo purposes
+
+---
+
+## Run Locally
+
+Use any static file server to serve the repository root (browsers can block media on file:// URLs):
+
+1. Clone the repo
+2. Start a static server in the project directory (Node, Python, or your favorite tool)
+3. Open `index.html` in your browser via http:// URL
+
+Notes:
+- Assets are referenced with relative paths; serving from the repo root keeps paths working.
+- FreeJ2ME runs inside `freej2me-web/web/run.html` via an iframe.
+
+---
+
+## Supported Browsers
+
+- Desktop: Latest Chrome, Edge, Firefox (recommended for best game performance)
+- Mobile: Chrome (Android), Safari (iOS) — playable but games may feel laggy due to mobile browser constraints
+
+---
+
+## Performance on Mobile
+
+Running a full J2ME emulator in the browser is demanding. Mobile browsers often throttle timers/animation and have tighter CPU/GPU budgets, which can make games feel slower or stutter.
+
+Tips:
+- Keep the tab active (foreground)
+- Disable battery saver / low power mode
+- Close other heavy tabs/apps
+- For the best experience, play on a laptop or desktop
 
 ---
 
@@ -146,6 +179,16 @@ Just like a real phone (but without running out of memory)!
 
 A help panel appears in the top-right when you're gaming!
 
+### On‑screen Nokia Keypad Mapping (Games)
+
+| Nokia Key | Emulator Key |
+|-----------|--------------|
+| D‑pad Up/Down/Left/Right | Arrow Up/Down/Left/Right |
+| OK / Green Call          | Enter |
+| LSK                      | Escape (FreeJ2ME menu) |
+| RSK                      | Exit emulator (back to list) |
+
+
 ---
 
 ## Contributing
@@ -153,8 +196,8 @@ A help panel appears in the top-right when you're gaming!
 This project was built for **fun and nostalgia**, but there's so much more we can add:
 
 **Wishlist:**
-- Mobile responsiveness
-- On-screen keypad to game controls mapping
+- Enhanced mobile game performance and optional low‑power mode
+- Customizable key bindings (per‑game overrides)
 - More apps (Messages, Settings, etc.)
 - More J2ME games
 - Additional themes
@@ -179,6 +222,12 @@ If this brings back memories or just makes you smile:
 - **[SpecKit](https://github.com/github/spec-kit)** – The AI coding tool that made this possible
 
 ---
+
+## Credits & Licenses
+
+- J2ME emulation by **[FreeJ2ME‑Web](https://github.com/zb3/freej2me-web)** (see upstream repository for license and attribution)
+- Web runtime for FreeJ2ME uses Leaningtech’s loader (CheerpJ/Web tech) as referenced in the vendored `freej2me-web/web/run.html`
+
 
 ## Special Thanks
 
