@@ -19,5 +19,12 @@
     "jar": "assets/games/Asphalt4-EliteRacing.jar",
     "icon": "assets/icons/Asphalt4.png",
     "sizeKb": 512
+  },
+  {
+    "id": "Assasins-Creed-Revelations",
+    "title": "Assasins Creed Revelations",
+    "jar": "assets/games/Assassins-Creed-Revelations.jar",
+    "icon": "assets/icons/Assasins-Creed-Revelations.png",
+    "sizeKb": 971
   }
 ]

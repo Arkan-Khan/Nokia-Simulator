@@ -321,6 +321,7 @@
       user-select: none;
       transition: opacity 0.1s;
       background: rgba(255, 255, 255, 0.04);
+      transform-origin: center center; /* enable safe scaling */
     }
     .button:active {
       opacity: 0.7;
@@ -356,6 +357,16 @@
   .key-star { left: 40px; top: 460px; width: 35px; height: 20px; border-bottom-left-radius: 20px; }
     .key-0 { left: 91px; top: 460px; width: 40px; height: 20px; }
   .key-hash { left: 145px; top: 460px; width: 35px; height: 20px; border-bottom-right-radius: 20px; }
+
+    /* On mobile/touch devices, slightly shrink tap targets to reduce misclicks between adjacent keys */
+    @media (hover: none) and (pointer: coarse) {
+      /* General shrink for all keypad overlays */
+      .button { transform: scale(0.92); }
+      /* Extra shrink for closely spaced right-side soft/call keys where misclicks were reported */
+      .right-soft, .call-red { transform: scale(0.88); }
+      /* Keep visual feedback consistent on press */
+      .button:active { opacity: 0.7; }
+    }
 
     /* Controls help panel (shown during Games emulator) */
     #controls-panel {

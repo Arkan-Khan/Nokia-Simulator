@@ -239,14 +239,26 @@ class BootController {
     buttons.forEach(button => {
       // Pointer-based press/release for hold + multi-key in Games only
       button.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
         const key = button.getAttribute('data-key');
-        this.handleButtonDown(key);
+        const currentState = this.phoneState.getCurrentState();
+        const gs = this.screenManager && this.screenManager.gamesScreen;
+        const holdable = (key === 'UP' || key === 'DOWN' || key === 'LEFT' || key === 'RIGHT' || key === 'OK' || key === 'CALL' || key === 'LSK');
+        if (currentState === PhoneStates.GAMES && gs && gs.isEmulatorRunning && holdable) {
+          e.preventDefault(); // prevent mouse compatibility events so we don't double-fire
+          this.handleButtonDown(key);
+        }
+        // In all other states (including POWERED_OFF), do not prevent default here,
+        // so mousedown events still reach LongPressDetector for power button.
       });
       const upHandler = (e) => {
-        e.preventDefault();
         const key = button.getAttribute('data-key');
-        this.handleButtonUp(key);
+        const currentState = this.phoneState.getCurrentState();
+        const gs = this.screenManager && this.screenManager.gamesScreen;
+        const holdable = (key === 'UP' || key === 'DOWN' || key === 'LEFT' || key === 'RIGHT' || key === 'OK' || key === 'CALL' || key === 'LSK');
+        if (currentState === PhoneStates.GAMES && gs && gs.isEmulatorRunning && holdable) {
+          e.preventDefault();
+          this.handleButtonUp(key);
+        }
       };
       button.addEventListener('pointerup', upHandler);
       button.addEventListener('pointercancel', upHandler);

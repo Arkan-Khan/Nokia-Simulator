@@ -77,6 +77,25 @@ From the home screen:
 - Open **Camera** and press OK to capture
 - View your masterpieces in **Gallery**
 
+## App How‑Tos
+
+### Notepad
+
+- Open Notepad, press LSK “New” to start a note.
+- Type with multi-tap; 0 inserts a space, * inserts a newline.
+- Press # to cycle modes: Abc → ABC → abc → 123 → Abc …
+- In Abc mode the first letter after a space/newline is uppercase; the rest are lowercase.
+- Press RSK for Clear (backspace). Press END to go back to the notes list.
+- Press LSK “Opt”:
+  - Select “Insert symbols” to open the 5x5 symbol grid. Use D‑pad to navigate and OK to insert; RSK returns to typing.
+  - Select “Save note” to save and return to the notes list.
+- The top bar shows the current mode and your character count out of 918.
+
+### Contacts
+
+- Add/Edit a contact: in the Name field, use # to cycle modes (Abc/ABC/abc/123); 0 inserts a space.
+- RSK is Back (unchanged). Number field entry remains numeric only.
+
 ### 7. Playing Games
 - Navigate to **Applications > Games** from the Menu
 - Select from pre-installed J2ME titles

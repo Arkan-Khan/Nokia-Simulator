@@ -1,12 +1,10 @@
 [
-  { "title": "Amplifier - Imran Khan", "file": "assets/music/Amplifier - Imran Khan.mp3", "type": "music" },
-  { "title": "Bewafa-Imran Khan", "file": "assets/music/Bewafa - Imran Khan.mp3", "type": "music" },
+  { "title": "Amplifier", "file": "assets/music/Amplifier - Imran Khan.mp3", "type": "music" },
+  { "title": "Bewafa", "file": "assets/music/Bewafa - Imran Khan.mp3", "type": "music" },
   { "title": "Blue Eyes", "file": "assets/music/Blue Eyes.mp3", "type": "music" },
   { "title": "Brown Rang", "file": "assets/music/Brown Rang.mp3", "type": "music" },
   { "title": "Desi Kalakaar", "file": "assets/music/Desi Kalakaar.mp3", "type": "music" },
   { "title": "Love Dose", "file": "assets/music/Love Dose.mp3", "type": "music" },
   { "title": "Na Na Na Na", "file": "assets/music/Na Na Na Na.mp3", "type": "music" },
-  { "title": "Tera Hone Laga Hu", "file": "assets/music/Tera-Hone-Laga-Hu.mp3", "type": "music" },
-  { "title": "Tum Hi Ho", "file": "assets/music/Tum Hi Ho.mp3", "type": "music" },
-  { "title": "Woh Lamhe", "file": "assets/music/Woh Lamhe.mp3", "type": "music" }
+  { "title": "Tum Hi Ho", "file": "assets/music/Tum Hi Ho.mp3", "type": "music" }
 ]
