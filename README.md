@@ -12,9 +12,7 @@ Built with **[SpecKit](https://github.com/github/spec-kit)** – the memory laye
 
 ## Demo
 
-**[📹 Watch the Demo Video](assets/videos/Nokia%20Simulator%20Demo.mp4)**
-
-*(Click to download/play the full walkthrough)*
+<a href="https://drive.google.com/file/d/1GxsRYwr9_f01jpbKZwp7Njruvp7o2KO4/preview" target="_blank" rel="noopener noreferrer">Watch the Demo Video (opens in new tab)</a>
 
 ---
 
