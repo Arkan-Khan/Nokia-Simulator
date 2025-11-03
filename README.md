@@ -10,6 +10,14 @@ Built with **[SpecKit](https://github.com/github/spec-kit)** – the memory laye
 
 ---
 
+## Demo
+
+**[📹 Watch the Demo Video](assets/videos/Nokia%20Simulator%20Demo.mp4)**
+
+*(Click to download/play the full walkthrough)*
+
+---
+
 ## What Makes This Special
 
 This isn't just a skin – it's a **fully functional simulator** that brings back the real Nokia experience:
